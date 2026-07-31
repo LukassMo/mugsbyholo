@@ -1,0 +1,89 @@
+/* Gemeinsames Layout für Textseiten (Impressum, Datenschutz) */
+
+@font-face{
+  font-family:'Caveat';
+  src:url('fonts/caveat-latin.woff2') format('woff2');
+  font-weight:400 700; font-style:normal; font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;
+}
+@font-face{
+  font-family:'Patrick Hand';
+  src:url('fonts/patrickhand-latin.woff2') format('woff2');
+  font-weight:400; font-style:normal; font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;
+}
+
+:root{
+  --paper:#FAF7F4;
+  --ink:#5A4A63;
+  --ink-weich:#8A7F94;
+  --lav:#EFE7FD;
+  --mint:#C9E9D8;
+  --cyan:#5CC2D8;
+  --linie:#E4DDE9;
+  --hand:'Caveat', ui-rounded, cursive;
+  --text:'Patrick Hand', ui-rounded, system-ui, sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--text);
+  font-size:19px;
+  line-height:1.65;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.wrap{width:min(760px,100% - 40px);margin-inline:auto}
+
+a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+a:hover{color:var(--cyan)}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:3px;border-radius:6px}
+
+header.top{border-bottom:1px solid var(--linie);background:var(--paper)}
+.top-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+.marke{display:flex;align-items:center;gap:10px;text-decoration:none}
+.marke svg{width:36px;height:35px;flex:none}
+.marke span{font-family:var(--hand);font-size:26px;font-weight:700;line-height:1}
+.zurueck{font-size:17px;color:var(--ink-weich);text-decoration:none}
+.zurueck:hover{color:var(--ink)}
+
+main{padding:44px 0 70px}
+
+h1{font-family:var(--hand);font-weight:700;font-size:clamp(38px,6vw,56px);line-height:1.06;margin-bottom:6px}
+.stand{color:var(--ink-weich);font-size:16.5px;margin-bottom:34px}
+
+h2{
+  font-family:var(--hand);font-weight:700;font-size:clamp(26px,3.4vw,33px);
+  line-height:1.15;margin:34px 0 10px;
+}
+h2:first-of-type{margin-top:0}
+
+p{margin-bottom:14px}
+p.eng{margin-bottom:4px}
+
+ul{margin:0 0 16px 22px}
+li{margin-bottom:7px}
+
+.karte{
+  background:var(--lav);border:2px solid var(--ink);border-radius:20px;
+  padding:24px 26px;margin-bottom:26px;
+}
+.karte p:last-child{margin-bottom:0}
+
+.hinweis{
+  border-left:5px solid var(--mint);background:#fff;
+  padding:16px 20px;border-radius:0 14px 14px 0;margin:22px 0;
+  font-size:18px;
+}
+.hinweis p:last-child{margin-bottom:0}
+
+footer.fuss{
+  border-top:1px solid var(--linie);padding:26px 0 40px;
+  font-size:16.5px;color:var(--ink-weich);
+}
+.fuss-links{display:flex;gap:18px;flex-wrap:wrap}
+.fuss-links a{color:var(--ink-weich)}
+.fuss-links a:hover{color:var(--ink)}
