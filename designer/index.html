@@ -33,6 +33,20 @@
   header h1{font-size:16px;font-weight:700;color:var(--brand)}
   header .spec{font-size:11px;color:var(--grau);text-decoration:none;white-space:nowrap}
   header a.spec:hover{color:#F1641E}
+  header .kopf-rechts{display:flex;align-items:center;gap:14px}
+
+  /* ---------- Sprachwahl ---------- */
+  .sprachwahl{display:flex;gap:4px;flex:0 0 auto}
+  .flagge{
+    display:flex;align-items:center;gap:5px;
+    padding:4px 7px;border:1px solid var(--linie);border-radius:5px;
+    background:var(--karte);cursor:pointer;line-height:1;
+    font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--grau);
+    font-family:inherit;
+  }
+  .flagge svg{width:17px;height:11px;display:block;flex:0 0 auto;border-radius:1.5px}
+  .flagge:hover{border-color:var(--brand)}
+  .flagge[aria-pressed="true"]{border-color:var(--brand);color:var(--brand);background:var(--lav)}
 
   .layout{
     display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:0;
@@ -286,9 +300,31 @@
 <body>
 
 <header>
-  <h1><a href="/" style="color:inherit;text-decoration:none">MugsByHolo</a> · Tassen-Designer</h1>
-  <!-- ETSY-LINK: hier die echte Shop-Adresse eintragen -->
-  <a class="spec" href="https://www.etsy.com/de/shop/MugsByHolo" target="_blank" rel="noopener">Kauf &amp; Zahlung laufen über Etsy →</a>
+  <h1><a href="/" style="color:inherit;text-decoration:none">MugsByHolo</a> · <span data-i18n="kopf_titel">Tassen-Designer</span></h1>
+  <div class="kopf-rechts">
+    <!-- ETSY-LINK: hier die echte Shop-Adresse eintragen -->
+    <a class="spec" href="https://www.etsy.com/de/shop/MugsByHolo" target="_blank" rel="noopener"
+       data-i18n="kopf_etsy">Kauf &amp; Zahlung laufen über Etsy →</a>
+    <div class="sprachwahl" id="sprachwahl" role="group" aria-label="Sprache · Language">
+      <button class="flagge" type="button" data-lang="de" aria-pressed="true" title="Deutsch">
+        <svg viewBox="0 0 5 3" aria-hidden="true">
+          <rect width="5" height="1" y="0" fill="#000"/>
+          <rect width="5" height="1" y="1" fill="#D00"/>
+          <rect width="5" height="1" y="2" fill="#FFCE00"/>
+        </svg>DE<span class="vh">Deutsch</span>
+      </button>
+      <button class="flagge" type="button" data-lang="en" aria-pressed="false" title="English">
+        <svg viewBox="0 0 60 30" aria-hidden="true">
+          <clipPath id="uj-clip"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+          <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uj-clip)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </svg>EN<span class="vh">English</span>
+      </button>
+    </div>
+  </div>
 </header>
 
 <div class="layout">
@@ -297,22 +333,24 @@
 
   <div class="vorschau-bereich">
     <div class="chips seiten" id="seiten">
-      <button class="chip" data-v="vorne" aria-pressed="true">Vorderseite</button>
-      <button class="chip" data-v="hinten" aria-pressed="false">Rückseite</button>
-      <button class="chip" data-v="beides" aria-pressed="false">Beide Seiten</button>
-      <button class="chip d3-schalter" id="d3-schalter" type="button" hidden aria-pressed="false">3D</button>
+      <button class="chip" data-v="vorne" aria-pressed="true" data-i18n="v_vorne">Vorderseite</button>
+      <button class="chip" data-v="hinten" aria-pressed="false" data-i18n="v_hinten">Rückseite</button>
+      <button class="chip" data-v="beides" aria-pressed="false" data-i18n="v_beides">Beide Seiten</button>
+      <button class="chip d3-schalter" id="d3-schalter" type="button" hidden aria-pressed="false"
+        data-i18n-title="d3_titel" title="Dreidimensionale Vorschau">3D</button>
     </div>
     <div class="blatt" id="blatt">
       <canvas id="vorschau"></canvas>
-      <canvas id="vorschau3d" hidden tabindex="0" role="img"
+      <canvas id="vorschau3d" hidden tabindex="0" role="img" data-i18n-al="d3_alt"
         aria-label="Dreidimensionale Vorschau der Tasse. Zum Drehen ziehen oder die Pfeiltasten benutzen."></canvas>
     </div>
+    <!-- kein data-i18n: setze3D() und setzeSprache() schreiben hier gemeinsam rein -->
     <p class="speczeile" id="speczeile">Vorschau deiner Tasse</p>
   </div>
 
   <div class="fotos-bereich">
     <div class="panel-box" id="bilder-panel" style="display:none">
-      <h3>Deine Fotos</h3>
+      <h3 data-i18n="fotos_titel">Deine Fotos</h3>
       <div id="fotos-liste"></div>
     </div>
   </div>
@@ -322,151 +360,151 @@
   <div class="steuer">
 
     <nav class="tabs" role="tablist">
-      <button class="tab" role="tab" aria-selected="true"  data-s="s1"><span class="nr">Schritt 1</span>Vorderseite</button>
-      <button class="tab" role="tab" aria-selected="false" data-s="s2"><span class="nr">Schritt 2</span>Rückseite</button>
-      <button class="tab" role="tab" aria-selected="false" data-s="s3"><span class="nr">Schritt 3</span>Fertig</button>
+      <button class="tab" role="tab" aria-selected="true"  data-s="s1"><span class="nr" data-i18n="nr1">Schritt 1</span><span data-i18n="tab1">Vorderseite</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-s="s2"><span class="nr" data-i18n="nr2">Schritt 2</span><span data-i18n="tab2">Rückseite</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-s="s3"><span class="nr" data-i18n="nr3">Schritt 3</span><span data-i18n="tab3">Fertig</span></button>
     </nav>
 
     <!-- ============ SCHRITT 1: VORDERSEITE ============ -->
     <section id="s1" class="aktiv">
       <div class="feld reihe3">
-        <div><label for="name">Name</label><input type="text" id="name" value="Anna" maxlength="24"></div>
-        <div><label for="jahr">Jahrgang</label><input type="number" id="jahr" value="1996" min="1920" max="2026"></div>
-        <div><label for="alter">Alter</label><input type="number" id="alter" value="30" min="1" max="120"></div>
+        <div><label for="name" data-i18n="lbl_name">Name</label><input type="text" id="name" value="Anna" maxlength="24"></div>
+        <div><label for="jahr" data-i18n="lbl_jahr">Jahrgang</label><input type="number" id="jahr" value="1996" min="1920" max="2026"></div>
+        <div><label for="alter" data-i18n="lbl_alter">Alter</label><input type="number" id="alter" value="30" min="1" max="120"></div>
       </div>
 
       <div class="feld">
-        <span class="gruppenlabel">Design</span>
+        <span class="gruppenlabel" data-i18n="grp_design">Design</span>
         <div class="chips" id="layouts"></div>
       </div>
       <div class="feld">
-        <span class="gruppenlabel">Mit Foto</span>
+        <span class="gruppenlabel" data-i18n="grp_foto">Mit Foto</span>
         <div class="chips" id="fotolayouts"></div>
       </div>
 
       <div class="feld" id="freitext-bereich" style="display:none">
-        <label for="freitext">Dein Text – jede Zeile kommt so auf die Tasse</label>
+        <label for="freitext" data-i18n="lbl_freitext">Dein Text – jede Zeile kommt so auf die Tasse</label>
         <textarea id="freitext" rows="4" maxlength="240"
           style="width:100%;padding:9px 11px;border:1px solid var(--linie);border-radius:6px;background:var(--karte);font-size:16px;font-family:inherit;color:var(--ink)"></textarea>
         <div class="chips" id="ftgroesse" style="margin-top:8px">
-          <button class="chip" data-g="s" aria-pressed="false">Klein</button>
-          <button class="chip" data-g="m" aria-pressed="true">Mittel</button>
-          <button class="chip" data-g="l" aria-pressed="false">Groß</button>
+          <button class="chip" data-g="s" aria-pressed="false" data-i18n="g_klein">Klein</button>
+          <button class="chip" data-g="m" aria-pressed="true" data-i18n="g_mittel">Mittel</button>
+          <button class="chip" data-g="l" aria-pressed="false" data-i18n="g_gross">Groß</button>
         </div>
       </div>
 
       <details id="texte-details" open>
-        <summary>Texte ändern</summary>
+        <summary data-i18n="texte_aendern">Texte ändern</summary>
         <div class="innen">
           <div class="feld"><label id="lbl-kicker" for="kicker">Zeile oben</label><input type="text" id="kicker"></div>
           <div class="feld"><label id="lbl-hero" for="hero">Große Zeile</label><input type="text" id="hero"></div>
           <div class="feld"><label id="lbl-sub" for="sub">Untertitel</label><input type="text" id="sub"></div>
-          <div class="feld" id="nm-feld"><label id="lbl-nm" for="nmzeile">Namenszeile</label><input type="text" id="nmzeile"></div>
+          <div class="feld" id="nm-feld"><label id="lbl-nm" for="nmzeile" data-i18n="lbl_nm">Namenszeile</label><input type="text" id="nmzeile"></div>
         </div>
       </details>
 
       <div class="feld">
-        <span class="gruppenlabel">Schriftstil</span>
+        <span class="gruppenlabel" data-i18n="grp_schrift">Schriftstil</span>
         <div class="chips" id="stile"></div>
         <input class="vh" type="file" id="fontdatei" accept=".ttf,.otf,.woff,.woff2">
-        <p class="hinweis">„Eigene" lädt eine Schriftdatei von deinem Gerät. Bitte nur Schriften, die du verwenden darfst.</p>
+        <p class="hinweis" data-i18n="hinweis_font">„Eigene" lädt eine Schriftdatei von deinem Gerät. Bitte nur Schriften, die du verwenden darfst.</p>
       </div>
 
       <div class="feld">
-        <span class="gruppenlabel">Textfarbe</span>
+        <span class="gruppenlabel" data-i18n="grp_textfarbe">Textfarbe</span>
         <div class="farben" id="farben"></div>
       </div>
 
-      <button class="haupt weiter" data-geh="s2">Weiter: Rückseite →</button>
+      <button class="haupt weiter" data-geh="s2" data-i18n="btn_weiter_rueck">Weiter: Rückseite →</button>
     </section>
 
     <!-- ============ SCHRITT 2: RÜCKSEITE ============ -->
     <section id="s2">
       <div class="feld">
-        <span class="gruppenlabel">Design</span>
+        <span class="gruppenlabel" data-i18n="grp_design">Design</span>
         <div class="chips" id="r-layouts"></div>
       </div>
       <div class="feld">
-        <span class="gruppenlabel">Mit Foto</span>
+        <span class="gruppenlabel" data-i18n="grp_foto">Mit Foto</span>
         <div class="chips" id="r-fotolayouts"></div>
       </div>
 
       <div class="feld" id="r-freitext-bereich" style="display:none">
-        <label for="rfreitext">Dein Text – jede Zeile kommt so auf die Tasse</label>
+        <label for="rfreitext" data-i18n="lbl_freitext">Dein Text – jede Zeile kommt so auf die Tasse</label>
         <textarea id="rfreitext" rows="4" maxlength="240"
           style="width:100%;padding:9px 11px;border:1px solid var(--linie);border-radius:6px;background:var(--karte);font-size:16px;font-family:inherit;color:var(--ink)"></textarea>
         <div class="chips" id="rtgroesse" style="margin-top:8px">
-          <button class="chip" data-g="s" aria-pressed="false">Klein</button>
-          <button class="chip" data-g="m" aria-pressed="true">Mittel</button>
-          <button class="chip" data-g="l" aria-pressed="false">Groß</button>
+          <button class="chip" data-g="s" aria-pressed="false" data-i18n="g_klein">Klein</button>
+          <button class="chip" data-g="m" aria-pressed="true" data-i18n="g_mittel">Mittel</button>
+          <button class="chip" data-g="l" aria-pressed="false" data-i18n="g_gross">Groß</button>
         </div>
       </div>
 
       <details id="r-texte-details" open>
-        <summary>Texte ändern</summary>
+        <summary data-i18n="texte_aendern">Texte ändern</summary>
         <div class="innen">
           <div class="feld"><label id="lbl-rkicker" for="r-kicker">Zeile oben</label><input type="text" id="r-kicker"></div>
           <div class="feld"><label id="lbl-rhero" for="r-hero">Große Zeile</label><input type="text" id="r-hero"></div>
           <div class="feld"><label id="lbl-rsub" for="r-sub">Untertitel</label><input type="text" id="r-sub"></div>
-            <div class="feld" id="r-nm-feld"><label for="r-nmzeile">Namenszeile</label><input type="text" id="r-nmzeile"></div>
+            <div class="feld" id="r-nm-feld"><label for="r-nmzeile" data-i18n="lbl_nm">Namenszeile</label><input type="text" id="r-nmzeile"></div>
         </div>
       </details>
 
       <div class="feld" id="r-stil-bereich">
-        <span class="gruppenlabel">Schriftstil</span>
+        <span class="gruppenlabel" data-i18n="grp_schrift">Schriftstil</span>
         <div class="chips" id="rueck-stile"></div>
       </div>
 
       <details id="symbol-details">
-        <summary><span class="sum-links">Stattdessen ein Symbol<span class="sym-vorschau" id="sym-vorschau"></span></span></summary>
+        <summary><span class="sum-links"><span data-i18n="symbol_summary">Stattdessen ein Symbol</span><span class="sym-vorschau" id="sym-vorschau"></span></span></summary>
         <div class="innen">
           <div class="feld">
             <div class="ikonen" id="ikonen"></div>
             <input class="vh" type="file" id="symboldatei" accept="image/svg+xml,.svg,image/png,image/jpeg,image/webp">
-            <p class="hinweis">Mit ＋ lädst du ein eigenes Symbol hoch – am besten PNG mit transparentem Hintergrund oder SVG.</p>
+            <p class="hinweis" data-i18n="hinweis_symbol">Mit ＋ lädst du ein eigenes Symbol hoch – am besten PNG mit transparentem Hintergrund oder SVG.</p>
           </div>
           <div class="feld">
-            <label for="elemcap">Text zum Symbol (optional)</label>
-            <textarea id="elemcap" rows="3" maxlength="200" placeholder="Schreib hier – der Text bricht automatisch um"
+            <label for="elemcap" data-i18n="lbl_elemcap">Text zum Symbol (optional)</label>
+            <textarea id="elemcap" rows="3" maxlength="200" data-i18n-ph="ph_elemcap" placeholder="Schreib hier – der Text bricht automatisch um"
               style="width:100%;padding:9px 11px;border:1px solid var(--linie);border-radius:6px;background:var(--karte);font-size:16px;font-family:inherit;color:var(--ink)"></textarea>
           </div>
           <div class="feld">
-            <span class="gruppenlabel">Text steht</span>
+            <span class="gruppenlabel" data-i18n="grp_textsteht">Text steht</span>
             <div class="chips" id="cappos">
-              <button class="chip" data-p="unten" aria-pressed="true">darunter</button>
-              <button class="chip" data-p="oben"  aria-pressed="false">darüber</button>
+              <button class="chip" data-p="unten" aria-pressed="true" data-i18n="p_unten">darunter</button>
+              <button class="chip" data-p="oben"  aria-pressed="false" data-i18n="p_oben">darüber</button>
             </div>
           </div>
-          <div class="regler"><span class="rlabel">↕ Abstand</span><input type="range" id="capabstand" min="0" max="30" value="5"><input type="number" class="zahl" id="o-abstand" min="0" max="30" value="5"></div>
-          <div class="regler"><span class="rlabel">🔍 Größe</span><input type="range" id="elemgroesse" min="25" max="95" value="60"><input type="number" class="zahl" id="o-elemgroesse" min="25" max="95" value="60"></div>
+          <div class="regler"><span class="rlabel" data-i18n="r_abstand">↕ Abstand</span><input type="range" id="capabstand" min="0" max="30" value="5"><input type="number" class="zahl" id="o-abstand" min="0" max="30" value="5"></div>
+          <div class="regler"><span class="rlabel" data-i18n="r_groesse">🔍 Größe</span><input type="range" id="elemgroesse" min="25" max="95" value="60"><input type="number" class="zahl" id="o-elemgroesse" min="25" max="95" value="60"></div>
         </div>
       </details>
 
       <div class="feld" id="farb-bereich">
-        <span class="gruppenlabel">Farbe</span>
+        <span class="gruppenlabel" data-i18n="grp_farbe">Farbe</span>
         <div class="farben" id="elemfarben"></div>
       </div>
 
-      <button class="mini" id="btn-tausch">⇄ Seiten tauschen</button>
+      <button class="mini" id="btn-tausch" data-i18n="btn_tausch">⇄ Seiten tauschen</button>
 
       <div class="navreihe">
-        <button class="zweit" data-geh="s1">← Zurück</button>
-        <button class="haupt" data-geh="s3">Weiter: Fertigstellen →</button>
+        <button class="zweit" data-geh="s1" data-i18n="btn_zurueck">← Zurück</button>
+        <button class="haupt" data-geh="s3" data-i18n="btn_weiter_fertig">Weiter: Fertigstellen →</button>
       </div>
     </section>
 
     <!-- ============ SCHRITT 3 ============ -->
     <section id="s3">
       <div class="panel-box">
-        <h3>Fast geschafft!</h3>
-        <p style="font-size:13.5px;line-height:1.55">
+        <h3 data-i18n="s3_titel">Fast geschafft!</h3>
+        <p style="font-size:13.5px;line-height:1.55" data-i18n="s3_text">
           Speichere dein Bild und schick es als Antwort auf deine Etsy-Bestellung.
         </p>
       </div>
 
-      <button class="haupt" id="btn-export">Bild speichern</button>
+      <button class="haupt" id="btn-export" data-i18n="btn_export">Bild speichern</button>
 
-      <p class="hinweis" style="margin-top:12px">
+      <p class="hinweis" style="margin-top:12px" data-i18n="hinweis_lokal">
         Deine Eingaben und Fotos bleiben auf deinem Gerät – diese Seite lädt nichts hoch.
       </p>
 
@@ -474,22 +512,22 @@
         <div class="shop-kopf">
           <span class="shop-mark" aria-hidden="true">E</span>
           <div>
-            <p class="shop-titel">Schönes Design!</p>
-            <p class="shop-text">
+            <p class="shop-titel" data-i18n="shop_titel">Schönes Design!</p>
+            <p class="shop-text" data-i18n="shop_text">
               Gedruckt und verschickt wird über meinen Etsy-Shop – von mir persönlich hergestellt.
             </p>
           </div>
         </div>
         <!-- ETSY-LINK: hier die echte Shop-Adresse eintragen -->
         <a class="shop-knopf" id="shop-knopf" href="https://www.etsy.com/de/shop/MugsByHolo"
-           target="_blank" rel="noopener">Tasse auf Etsy bestellen →</a>
-        <p class="shop-fuss">
+           target="_blank" rel="noopener" data-i18n="shop_knopf">Tasse auf Etsy bestellen →</a>
+        <p class="shop-fuss" data-i18n="shop_fuss">
           Schon bestellt? Dann häng dein gespeichertes Bild einfach als Antwort an deine Bestellung.
         </p>
       </div>
 
       <div class="navreihe">
-        <button class="zweit" data-geh="s2">← Zurück</button>
+        <button class="zweit" data-geh="s2" data-i18n="btn_zurueck">← Zurück</button>
       </div>
     </section>
 
@@ -500,23 +538,167 @@
 </div>
 
 <footer>
-  <strong>Impressum</strong><br>
+  <strong data-i18n="foot_impressum">Impressum</strong><br>
   Lukas Molitor · MugsByHolo · Pfarrgasse 22 · 71032 Böblingen · Deutschland<br>
   E-Mail: lukasmolitorfr@gmail.com · Verpackungsregister LUCID: DE2738891958787<br><br>
-  <strong>Datenschutz</strong><br>
-  Diese Seite läuft vollständig in deinem Browser. Eingaben und hochgeladene Bilder werden nicht
+  <strong data-i18n="foot_ds_h">Datenschutz</strong><br>
+  <span data-i18n="foot_ds_text">Diese Seite läuft vollständig in deinem Browser. Eingaben und hochgeladene Bilder werden nicht
   übertragen und nicht gespeichert. Es werden keine Cookies gesetzt und kein Tracking eingesetzt.
   Beim Aufruf verarbeitet der Hoster (GitHub Pages, GitHub Inc., USA) technisch bedingt deine
-  IP-Adresse in Server-Logfiles (Art. 6 Abs. 1 lit. f DSGVO).<br><br>
-  <a href="/">Startseite</a> ·
-  <a href="/impressum.html">Vollständiges Impressum</a> ·
-  <a href="/datenschutz.html">Datenschutzerklärung</a>
+  IP-Adresse in Server-Logfiles (Art. 6 Abs. 1 lit. f DSGVO).</span><br><br>
+  <a href="/" data-i18n="foot_start">Startseite</a> ·
+  <a href="/impressum.html" data-i18n="foot_impressum_link">Vollständiges Impressum</a> ·
+  <a href="/datenschutz.html" data-i18n="foot_ds_link">Datenschutzerklärung</a>
 </footer>
 
 <script>
 (function(){
   const $ = id => document.getElementById(id);
   const DPI = 300, JETZT = 2026, B_CM = 20, H_CM = 9;
+
+  /* ================= Sprachen =================
+     Neue Texte immer in BEIDE Tabellen eintragen. Fehlt ein Schlüssel in en,
+     fällt T() still auf Deutsch zurück – sichtbar, aber nicht kaputt.       */
+  const TEXTE = {
+    de: {
+      seite_titel:'MugsByHolo · Tassen-Designer',
+      kopf_titel:'Tassen-Designer',
+      kopf_etsy:'Kauf & Zahlung laufen über Etsy →',
+      v_vorne:'Vorderseite', v_hinten:'Rückseite', v_beides:'Beide Seiten',
+      vorschau_spec:'Vorschau deiner Tasse',
+      spec_3d:'Ziehen zum Drehen – so wirkt der Druck auf der Tasse',
+      d3_titel:'Dreidimensionale Vorschau',
+      d3_alt:'Dreidimensionale Vorschau der Tasse. Zum Drehen ziehen oder die Pfeiltasten benutzen.',
+      fotos_titel:'Deine Fotos',
+      nr1:'Schritt 1', nr2:'Schritt 2', nr3:'Schritt 3',
+      tab1:'Vorderseite', tab2:'Rückseite', tab3:'Fertig',
+      lbl_name:'Name', lbl_jahr:'Jahrgang', lbl_alter:'Alter',
+      grp_design:'Design', grp_foto:'Mit Foto',
+      lbl_freitext:'Dein Text – jede Zeile kommt so auf die Tasse',
+      g_klein:'Klein', g_mittel:'Mittel', g_gross:'Groß',
+      texte_aendern:'Texte ändern',
+      lbl_kicker:'Zeile oben', lbl_hero:'Große Zeile', lbl_sub:'Untertitel', lbl_nm:'Namenszeile',
+      pol_kicker:'Zeile oben', pol_hero:'Bildunterschrift', pol_sub:'Kleine Zeile unten',
+      grp_schrift:'Schriftstil',
+      hinweis_font:'„Eigene" lädt eine Schriftdatei von deinem Gerät. Bitte nur Schriften, die du verwenden darfst.',
+      grp_textfarbe:'Textfarbe',
+      btn_weiter_rueck:'Weiter: Rückseite →',
+      symbol_summary:'Stattdessen ein Symbol',
+      hinweis_symbol:'Mit ＋ lädst du ein eigenes Symbol hoch – am besten PNG mit transparentem Hintergrund oder SVG.',
+      lbl_elemcap:'Text zum Symbol (optional)',
+      ph_elemcap:'Schreib hier – der Text bricht automatisch um',
+      grp_textsteht:'Text steht', p_unten:'darunter', p_oben:'darüber',
+      r_abstand:'↕ Abstand', r_groesse:'🔍 Größe', r_drehen:'↻ Drehen',
+      r_seitlich:'↔ Seitlich', r_hochtief:'↕ Hoch/Tief',
+      grp_farbe:'Farbe',
+      btn_tausch:'⇄ Seiten tauschen',
+      btn_zurueck:'← Zurück', btn_weiter_fertig:'Weiter: Fertigstellen →',
+      s3_titel:'Fast geschafft!',
+      s3_text:'Speichere dein Bild und schick es als Antwort auf deine Etsy-Bestellung.',
+      btn_export:'Bild speichern',
+      hinweis_lokal:'Deine Eingaben und Fotos bleiben auf deinem Gerät – diese Seite lädt nichts hoch.',
+      shop_titel:'Schönes Design!',
+      shop_text:'Gedruckt und verschickt wird über meinen Etsy-Shop – von mir persönlich hergestellt.',
+      shop_knopf:'Tasse auf Etsy bestellen →',
+      shop_fuss:'Schon bestellt? Dann häng dein gespeichertes Bild einfach als Antwort an deine Bestellung.',
+      foot_impressum:'Impressum', foot_ds_h:'Datenschutz',
+      foot_ds_text:'Diese Seite läuft vollständig in deinem Browser. Eingaben und hochgeladene Bilder werden nicht übertragen und nicht gespeichert. Es werden keine Cookies gesetzt und kein Tracking eingesetzt. Beim Aufruf verarbeitet der Hoster (GitHub Pages, GitHub Inc., USA) technisch bedingt deine IP-Adresse in Server-Logfiles (Art. 6 Abs. 1 lit. f DSGVO).',
+      foot_start:'Startseite', foot_impressum_link:'Vollständiges Impressum', foot_ds_link:'Datenschutzerklärung',
+      chip_nichts:'Nichts',
+      farbe_al:'Farbe ',
+      eigene_ok:'Eigene ✓',
+      sym_upload_al:'Eigenes Symbol hochladen', sym_upload_t:'Eigenes Symbol',
+      foto_vorne:'Foto Vorderseite', foto_hinten:'Foto Rückseite',
+      foto_gewaehlt:'✓ Foto gewählt – anderes wählen', foto_waehlen:'📷 Foto auswählen',
+      cv_foto:'Foto auswählen',
+      btn_reset:'Zurücksetzen',
+      t_zoom:'Zoom ', t_gedreht:'gedreht ', t_verschoben:'verschoben',
+      st_gespeichert:'Bild gespeichert – jetzt bei Etsy bestellen oder anhängen.',
+      st_schrift_ok:'Schrift geladen: ',
+      st_schrift_fehler:'Diese Schriftdatei konnte nicht gelesen werden.',
+      st_symbol_ok:'Eigenes Symbol geladen.',
+      st_symbol_fehler:'Diese Datei konnte nicht gelesen werden. Am besten PNG mit transparentem Hintergrund oder SVG.',
+      st_datei_fehler:'Datei konnte nicht gelesen werden.',
+      st_foto_ok:'Foto ist drin.',
+      st_foto_format:'Dieses Format geht leider nicht – bitte JPG oder PNG.',
+      frei_vorne:'Alles Gute\nzum Geburtstag', frei_hinten:'Alles Liebe',
+      dateiname:'meine-tasse',
+      stil_klassisch:'Klassisch', stil_hand:'Handschrift', stil_rund:'Rund', stil_elegant:'Elegant',
+      stil_marker:'Marker', stil_schwung:'Schwung', stil_retro:'Retro', stil_eigene:'Eigene…'
+    },
+    en: {
+      seite_titel:'MugsByHolo · Mug Designer',
+      kopf_titel:'Mug Designer',
+      kopf_etsy:'Checkout & payment run through Etsy →',
+      v_vorne:'Front', v_hinten:'Back', v_beides:'Both sides',
+      vorschau_spec:'Preview of your mug',
+      spec_3d:'Drag to turn – how the print sits on the mug',
+      d3_titel:'Three-dimensional preview',
+      d3_alt:'Three-dimensional preview of the mug. Drag to turn it, or use the arrow keys.',
+      fotos_titel:'Your photos',
+      nr1:'Step 1', nr2:'Step 2', nr3:'Step 3',
+      tab1:'Front', tab2:'Back', tab3:'Done',
+      lbl_name:'Name', lbl_jahr:'Birth year', lbl_alter:'Age',
+      grp_design:'Design', grp_foto:'With photo',
+      lbl_freitext:'Your text – each line goes on the mug just like this',
+      g_klein:'Small', g_mittel:'Medium', g_gross:'Large',
+      texte_aendern:'Edit the text',
+      lbl_kicker:'Top line', lbl_hero:'Big line', lbl_sub:'Subtitle', lbl_nm:'Name line',
+      pol_kicker:'Top line', pol_hero:'Caption', pol_sub:'Small line below',
+      grp_schrift:'Font style',
+      hinweis_font:'“Custom” loads a font file from your device. Please only use fonts you are allowed to use.',
+      grp_textfarbe:'Text colour',
+      btn_weiter_rueck:'Next: back side →',
+      symbol_summary:'Use a symbol instead',
+      hinweis_symbol:'Use ＋ to upload your own symbol – ideally a PNG with a transparent background, or an SVG.',
+      lbl_elemcap:'Text with the symbol (optional)',
+      ph_elemcap:'Type here – the text wraps by itself',
+      grp_textsteht:'Text sits', p_unten:'below', p_oben:'above',
+      r_abstand:'↕ Spacing', r_groesse:'🔍 Size', r_drehen:'↻ Rotate',
+      r_seitlich:'↔ Sideways', r_hochtief:'↕ Up/Down',
+      grp_farbe:'Colour',
+      btn_tausch:'⇄ Swap sides',
+      btn_zurueck:'← Back', btn_weiter_fertig:'Next: finish →',
+      s3_titel:'Almost there!',
+      s3_text:'Save your image and send it as a reply to your Etsy order.',
+      btn_export:'Save image',
+      hinweis_lokal:'Your entries and photos stay on your device – this page uploads nothing.',
+      shop_titel:'Lovely design!',
+      shop_text:'Printing and shipping run through my Etsy shop – made personally by me.',
+      shop_knopf:'Order this mug on Etsy →',
+      shop_fuss:'Already ordered? Just attach your saved image as a reply to your order.',
+      foot_impressum:'Legal notice', foot_ds_h:'Privacy',
+      foot_ds_text:'This page runs entirely in your browser. Entries and uploaded images are neither transmitted nor stored. No cookies are set and no tracking is used. When you open the page, the host (GitHub Pages, GitHub Inc., USA) processes your IP address in server log files for technical reasons (Art. 6(1)(f) GDPR).',
+      foot_start:'Home', foot_impressum_link:'Full legal notice', foot_ds_link:'Privacy policy',
+      chip_nichts:'None',
+      farbe_al:'Colour ',
+      eigene_ok:'Custom ✓',
+      sym_upload_al:'Upload your own symbol', sym_upload_t:'Your own symbol',
+      foto_vorne:'Photo front', foto_hinten:'Photo back',
+      foto_gewaehlt:'✓ Photo chosen – pick another', foto_waehlen:'📷 Choose a photo',
+      cv_foto:'Choose a photo',
+      btn_reset:'Reset',
+      t_zoom:'zoom ', t_gedreht:'rotated ', t_verschoben:'moved',
+      st_gespeichert:'Image saved – now order on Etsy or attach it to your order.',
+      st_schrift_ok:'Font loaded: ',
+      st_schrift_fehler:'This font file could not be read.',
+      st_symbol_ok:'Your symbol has been loaded.',
+      st_symbol_fehler:'This file could not be read. A PNG with a transparent background or an SVG works best.',
+      st_datei_fehler:'The file could not be read.',
+      st_foto_ok:'Photo added.',
+      st_foto_format:'That format does not work – please use JPG or PNG.',
+      frei_vorne:'Happy Birthday\nto you', frei_hinten:'With love',
+      dateiname:'my-mug',
+      stil_klassisch:'Classic', stil_hand:'Handwriting', stil_rund:'Round', stil_elegant:'Elegant',
+      stil_marker:'Marker', stil_schwung:'Flourish', stil_retro:'Retro', stil_eigene:'Custom…'
+    }
+  };
+  let SPRACHE = 'de';
+  const T = k => {
+    const t = TEXTE[SPRACHE];
+    if (t && t[k]!==undefined) return t[k];
+    return TEXTE.de[k]!==undefined ? TEXTE.de[k] : k;
+  };
 
   if (!CanvasRenderingContext2D.prototype.roundRect){
     CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
@@ -572,23 +754,58 @@
   ];
   const ELEMFARBEN = FARBEN;
 
-  const PRESETS = {
-    legenden:   {titel:'Legenden',    kat:'text', kicker:'LEGENDEN SIND',      hero:'{jahr}',         sub:'GEBOREN', nm:'{name}'},
-    level:      {titel:'Level',       kat:'text', kicker:'LEVEL',              hero:'{alter}',        sub:'FREIGESCHALTET', nm:'★ {name} ★'},
-    vintage:    {titel:'Vintage',     kat:'text', kicker:'★ VINTAGE ★',        hero:'{jahr}',         sub:'ORIGINALTEILE · {alter} JAHRE GEREIFT', nm:'{name}'},
-    limitiert:  {titel:'Limitiert',   kat:'text', kicker:'LIMITIERTE AUFLAGE', hero:'{jahr}',         sub:'SAMMLERSTÜCK · 1 VON 1', nm:'{name}'},
-    meilenstein:{titel:'Meilenstein', kat:'text', kicker:'EST. {jahr}',        hero:'{alter}',        sub:'GROSSARTIGE JAHRE', nm:'{name}'},
-    monogramm:  {titel:'Monogramm',   kat:'text', kicker:'SEIT {jahr}',        hero:'{initial}',      sub:'', nm:'{name}'},
-    skript:     {titel:'Skript',      kat:'text', kicker:'Die einzigartige',   hero:'{name}',         sub:'Original seit {jahr}'},
-    krone:      {titel:'Krone',       kat:'text', kicker:'KÖNIGIN SEIT',       hero:'{jahr}',         sub:'', nm:'{name}'},
-    fotokreis:  {titel:'Foto rund',   kat:'foto', kicker:'',                   hero:'{name}',         sub:'SEIT {jahr}'},
-    fotobogen:  {titel:'Foto-Bogen',  kat:'foto', kicker:'HAPPY BIRTHDAY',     hero:'{name}',         sub:'{alter} JAHRE'},
-    fotoherz:   {titel:'Foto-Herz',   kat:'foto', kicker:'',                   hero:'{name}',         sub:'★ {jahr} ★'},
-    polaroid:   {titel:'Polaroid',    kat:'foto', kicker:'',                   hero:'{name}, {jahr}', sub:''},
-    fotorahmen: {titel:'Foto eckig',  kat:'foto', kicker:'',                   hero:'{name}',         sub:'{jahr}'},
-    fotokranz:  {titel:'Foto-Kranz',  kat:'foto', kicker:'ALLES GUTE',        hero:'{name}',         sub:'ZUM {alter}. GEBURTSTAG'},
-    freitext:   {titel:'Eigener Text', kat:'text', kicker:'', hero:'Alles Gute!', sub:''}
+  /* Kategorie ist sprachunabhängig, die Texte kommen aus PRESET_TEXTE.
+     Wichtig: nm nur dort setzen, wo es das Layout auch zeichnet – die
+     Namenszeile wird über p.nm!==undefined ein- und ausgeblendet.        */
+  const PRESET_KAT = {
+    legenden:'text', level:'text', vintage:'text', limitiert:'text', meilenstein:'text',
+    monogramm:'text', skript:'text', krone:'text', fotokreis:'foto', fotobogen:'foto',
+    fotoherz:'foto', polaroid:'foto', fotorahmen:'foto', fotokranz:'foto', freitext:'text'
   };
+  const PRESET_TEXTE = {
+    de: {
+      legenden:   {titel:'Legenden',    kicker:'LEGENDEN SIND',      hero:'{jahr}',         sub:'GEBOREN', nm:'{name}'},
+      level:      {titel:'Level',       kicker:'LEVEL',              hero:'{alter}',        sub:'FREIGESCHALTET', nm:'★ {name} ★'},
+      vintage:    {titel:'Vintage',     kicker:'★ VINTAGE ★',        hero:'{jahr}',         sub:'ORIGINALTEILE · {alter} JAHRE GEREIFT', nm:'{name}'},
+      limitiert:  {titel:'Limitiert',   kicker:'LIMITIERTE AUFLAGE', hero:'{jahr}',         sub:'SAMMLERSTÜCK · 1 VON 1', nm:'{name}'},
+      meilenstein:{titel:'Meilenstein', kicker:'EST. {jahr}',        hero:'{alter}',        sub:'GROSSARTIGE JAHRE', nm:'{name}'},
+      monogramm:  {titel:'Monogramm',   kicker:'SEIT {jahr}',        hero:'{initial}',      sub:'', nm:'{name}'},
+      skript:     {titel:'Skript',      kicker:'Die einzigartige',   hero:'{name}',         sub:'Original seit {jahr}'},
+      krone:      {titel:'Krone',       kicker:'KÖNIGIN SEIT',       hero:'{jahr}',         sub:'', nm:'{name}'},
+      fotokreis:  {titel:'Foto rund',   kicker:'',                   hero:'{name}',         sub:'SEIT {jahr}'},
+      fotobogen:  {titel:'Foto-Bogen',  kicker:'HAPPY BIRTHDAY',     hero:'{name}',         sub:'{alter} JAHRE'},
+      fotoherz:   {titel:'Foto-Herz',   kicker:'',                   hero:'{name}',         sub:'★ {jahr} ★'},
+      polaroid:   {titel:'Polaroid',    kicker:'',                   hero:'{name}, {jahr}', sub:''},
+      fotorahmen: {titel:'Foto eckig',  kicker:'',                   hero:'{name}',         sub:'{jahr}'},
+      fotokranz:  {titel:'Foto-Kranz',  kicker:'ALLES GUTE',         hero:'{name}',         sub:'ZUM {alter}. GEBURTSTAG'},
+      freitext:   {titel:'Eigener Text',kicker:'',                   hero:'Alles Gute!',    sub:''}
+    },
+    en: {
+      legenden:   {titel:'Legends',     kicker:'LEGENDS ARE',        hero:'{jahr}',         sub:'BORN', nm:'{name}'},
+      level:      {titel:'Level',       kicker:'LEVEL',              hero:'{alter}',        sub:'UNLOCKED', nm:'★ {name} ★'},
+      vintage:    {titel:'Vintage',     kicker:'★ VINTAGE ★',        hero:'{jahr}',         sub:'ORIGINAL PARTS · AGED {alter} YEARS', nm:'{name}'},
+      limitiert:  {titel:'Limited',     kicker:'LIMITED EDITION',    hero:'{jahr}',         sub:"COLLECTOR'S ITEM · 1 OF 1", nm:'{name}'},
+      meilenstein:{titel:'Milestone',   kicker:'EST. {jahr}',        hero:'{alter}',        sub:'GLORIOUS YEARS', nm:'{name}'},
+      monogramm:  {titel:'Monogram',    kicker:'SINCE {jahr}',       hero:'{initial}',      sub:'', nm:'{name}'},
+      skript:     {titel:'Script',      kicker:'The one and only',   hero:'{name}',         sub:'Original since {jahr}'},
+      krone:      {titel:'Crown',       kicker:'QUEEN SINCE',        hero:'{jahr}',         sub:'', nm:'{name}'},
+      fotokreis:  {titel:'Photo round', kicker:'',                   hero:'{name}',         sub:'SINCE {jahr}'},
+      fotobogen:  {titel:'Photo arch',  kicker:'HAPPY BIRTHDAY',     hero:'{name}',         sub:'{alter} YEARS'},
+      fotoherz:   {titel:'Photo heart', kicker:'',                   hero:'{name}',         sub:'★ {jahr} ★'},
+      polaroid:   {titel:'Polaroid',    kicker:'',                   hero:'{name}, {jahr}', sub:''},
+      fotorahmen: {titel:'Photo square',kicker:'',                   hero:'{name}',         sub:'{jahr}'},
+      fotokranz:  {titel:'Photo wreath',kicker:'HAPPY BIRTHDAY',     hero:'{name}',         sub:'TURNING {alter}'},
+      freitext:   {titel:'Your own text',kicker:'',                  hero:'All the best!',  sub:''}
+    }
+  };
+  let PRESETS = {};
+  function bauePresets(){
+    PRESETS = {};
+    Object.keys(PRESET_KAT).forEach(id=>{
+      PRESETS[id] = Object.assign({kat:PRESET_KAT[id]}, PRESET_TEXTE[SPRACHE][id]);
+    });
+  }
+  bauePresets();
 
   const druck = document.createElement('canvas');
   const vc = $('vorschau'), vctx = vc.getContext('2d');
@@ -783,7 +1000,7 @@
     ctx.setLineDash([]);
     ctx.font='500 '+Math.round(g*0.10)+'px system-ui,sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('Foto auswählen', cx, cy);
+    ctx.fillText(T('cv_foto'), cx, cy);
     ctx.restore();
   }
 
@@ -793,7 +1010,7 @@
     ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.stroke();
     ctx.setLineDash([]);
     ctx.font='500 '+Math.round(r*0.14)+'px system-ui,sans-serif';
-    ctx.fillText('Foto auswählen', cx, cy);
+    ctx.fillText(T('cv_foto'), cx, cy);
     ctx.restore();
   }
   function herzPfad(ctx){
@@ -992,7 +1209,7 @@
         ctx.setLineDash([12,9]); ctx.lineWidth=Math.max(2,H*0.008);
         ctx.stroke(); ctx.setLineDash([]);
         ctx.font='500 '+Math.round(H*0.06)+'px system-ui,sans-serif';
-        ctx.fillText('Foto auswählen',cx,y0+b*0.45);
+        ctx.fillText(T('cv_foto'),cx,y0+b*0.45);
         ctx.restore();
       }
       const fH=g=>fSerifH('italic',700,g);
@@ -1023,7 +1240,7 @@
         ctx.strokeRect(pxr,pyr,pw,ph);
         ctx.setLineDash([]);
         ctx.font='500 '+Math.round(H*0.055)+'px system-ui,sans-serif';
-        ctx.fillText('Foto auswählen',0,pyr+ph/2);
+        ctx.fillText(T('cv_foto'),0,pyr+ph/2);
         ctx.restore();
       }
       const bandY=top+m+ph+(fh-(m+ph))/2;
@@ -1051,7 +1268,7 @@
         ctx.beginPath(); ctx.roundRect(pxr,pyr,pw,ph,rad); ctx.stroke();
         ctx.setLineDash([]);
         ctx.font='500 '+Math.round(H*0.055)+'px system-ui,sans-serif';
-        ctx.fillText('Foto auswählen',cx,pyr+ph/2);
+        ctx.fillText(T('cv_foto'),cx,pyr+ph/2);
         ctx.restore();
       }
       const fH=g=>fSerifH('italic',700,g);
@@ -1109,23 +1326,38 @@
 
   /* ---------- Zwei-Foto-Layouts ---------- */
   /* ================= Rendern ================= */
-  function rendere(ctx, W, H, d){
-    ctx.save();
-    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
+  /* Rückt die Rückseite um NAEHER_PT näher an die Textseite. Wert in
+     typografischen Punkten (1 pt = 1/72 Zoll), passend zur Druckvorlage.
+     0 = alte Aufteilung, negativ = weiter auseinander.                   */
+  const NAEHER_PT = 30;
+  const pt = n => Math.round(n / 72 * DPI);
 
+  /* Einmal berechnet, von Druck und Vorschau-Ausschnitt gemeinsam benutzt –
+     sonst zeigt die Vorschau einen anderen Ausschnitt als das Druckbild.  */
+  function seitenLayout(W){
     const RAND = W*0.05;
     const VERSATZ = px(3);            /* rechte Seite 3 cm weiter rechts */
+    const naeher = pt(NAEHER_PT);
     const zwB = W*0.43;
     let textX, elemX, zwT=zwB, zwE=zwB;
     if (Z.textSeite==='links'){
       textX = RAND;
       elemX = W - RAND - zwB + VERSATZ;
-      zwE = W - elemX - W*0.005;
+      zwE   = W - elemX - W*0.005;
+      elemX -= naeher;                /* Rückseite steht rechts -> nach links */
     } else {
-      elemX = RAND;
+      elemX = RAND + naeher;          /* Rückseite steht links -> nach rechts */
       textX = W - RAND - zwB + VERSATZ;
-      zwT = W - textX - W*0.005;
+      zwT   = W - textX - W*0.005;
     }
+    return {textX, elemX, zwT, zwE};
+  }
+
+  function rendere(ctx, W, H, d){
+    ctx.save();
+    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
+
+    const {textX, elemX, zwT, zwE} = seitenLayout(W);
 
     /* --- Vorderseite --- */
     const sV = {
@@ -1233,13 +1465,7 @@
 
     /* Ausschnitt je nach gewählter Ansicht */
     const Wp=druck.width, Hp=druck.height;
-    const RANDp=Wp*0.05, VERp=px(3), zwBp=Wp*0.43;
-    let txp, exp, zwTp=zwBp, zwEp=zwBp;
-    if (Z.textSeite==='links'){
-      txp=RANDp; exp=Wp-RANDp-zwBp+VERp; zwEp=Wp-exp-Wp*0.005;
-    } else {
-      exp=RANDp; txp=Wp-RANDp-zwBp+VERp; zwTp=Wp-txp-Wp*0.005;
-    }
+    const {textX:txp, elemX:exp, zwT:zwTp, zwE:zwEp} = seitenLayout(Wp);
     let sx=0, sw=Wp;
     if (Z.ansicht==='vorne'){ sx=Math.max(0, txp-Wp*0.015); sw=Math.min(zwTp+Wp*0.03, Wp-sx); }
     else if (Z.ansicht==='hinten'){ sx=Math.max(0, exp-Wp*0.015); sw=Math.min(zwEp+Wp*0.03, Wp-sx); }
@@ -1636,9 +1862,7 @@
     $('vorschau3d').hidden = !an;
     $('blatt').classList.toggle('dreid', an);
     $('d3-schalter').setAttribute('aria-pressed', an?'true':'false');
-    $('speczeile').textContent = an
-      ? 'Ziehen zum Drehen – so wirkt der Druck auf der Tasse'
-      : 'Vorschau deiner Tasse';
+    $('speczeile').textContent = an ? T('spec_3d') : T('vorschau_spec');
     if (an){ Mug3D.textur(); Mug3D.ansicht(Z.ansicht); Mug3D.klickbar(platzhalterAktiv()); }
   }
   if (Mug3D){
@@ -1650,7 +1874,7 @@
   /* ================= Fertigstellen ================= */
   function dateiname(d){
     const s=t=>String(t).toLowerCase().replace(/[^a-z0-9äöüß]+/g,'-');
-    return `meine-tasse-${s(d.name)}-${d.jahr}.png`;
+    return `${T('dateiname')}-${s(d.name)}-${d.jahr}.png`;
   }
   function exportiere(d){
     return new Promise(res=>{
@@ -1672,7 +1896,7 @@
   $('btn-export').addEventListener('click', async ()=>{
     aktualisiere();
     await exportiere(daten());
-    $('status').textContent='Bild gespeichert – jetzt bei Etsy bestellen oder anhängen.';
+    $('status').textContent=T('st_gespeichert');
     zeigeTab('s3');
     const karte=$('shop-karte');
     karte.classList.remove('leuchtet');
@@ -1683,9 +1907,9 @@
 
   function tBeschreibung(t){
     const teile=[];
-    if (t.zoom>1.01) teile.push('Zoom '+Math.round(t.zoom*100)+'%');
-    if (Math.abs(t.rot)>0.5) teile.push('gedreht '+t.rot+'°');
-    if (Math.abs(t.dx)>0.02||Math.abs(t.dy)>0.02) teile.push('verschoben');
+    if (t.zoom>1.01) teile.push(T('t_zoom')+Math.round(t.zoom*100)+'%');
+    if (Math.abs(t.rot)>0.5) teile.push(T('t_gedreht')+t.rot+'°');
+    if (Math.abs(t.dx)>0.02||Math.abs(t.dy)>0.02) teile.push(T('t_verschoben'));
     return teile.length? ' ('+teile.join(', ')+')' : '';
   }
 
@@ -1739,25 +1963,26 @@
     if(!rDirty.nm)     $('r-nmzeile').value=ersetze(p.nm||'',d);
     $('r-nm-feld').style.display = (p.nm!==undefined) ? '' : 'none';
   }
-  const LABELS = {
-    std:      ['Zeile oben','Große Zeile','Untertitel'],
-    polaroid: ['Zeile oben','Bildunterschrift','Kleine Zeile unten']
-  };
+  const LABELS = () => ({
+    std:      [T('lbl_kicker'), T('lbl_hero'), T('lbl_sub')],
+    polaroid: [T('pol_kicker'), T('pol_hero'), T('pol_sub')]
+  });
   function beschrifte(){
-    const l = Z.layout==='polaroid' ? LABELS.polaroid : LABELS.std;
+    const LB = LABELS();
+    const l = Z.layout==='polaroid' ? LB.polaroid : LB.std;
     $('lbl-kicker').textContent=l[0];
     $('lbl-hero').textContent=l[1];
     $('lbl-sub').textContent=l[2];
     const frei = Z.layout==='freitext';
     $('freitext-bereich').style.display = frei ? '' : 'none';
     $('texte-details').style.display = frei ? 'none' : '';
-    if (frei && !Z.freitextDirty && !$('freitext').value) $('freitext').value='Alles Gute\nzum Geburtstag';
+    if (frei && !Z.freitextDirty && !$('freitext').value) $('freitext').value=T('frei_vorne');
 
-    const rl = Z.rueck.layout==='polaroid' ? LABELS.polaroid : LABELS.std;
+    const rl = Z.rueck.layout==='polaroid' ? LB.polaroid : LB.std;
     $('lbl-rkicker').textContent=rl[0];
     $('lbl-rhero').textContent=rl[1];
     $('lbl-rsub').textContent=rl[2];
-    if (Z.rueck.layout==='freitext' && !$('rfreitext').value) $('rfreitext').value='Alles Liebe';
+    if (Z.rueck.layout==='freitext' && !$('rfreitext').value) $('rfreitext').value=T('frei_hinten');
   }
   function panelUpdate(){ baueFotoKarten(); }
 
@@ -1787,23 +2012,27 @@
     if (Z.ansicht!=='hinten') setzeAnsicht('hinten'); else aktualisiere();
   }
 
-  Object.entries(PRESETS).forEach(([id,p])=>{
-    const b=document.createElement('button');
-    b.className='chip'; b.textContent=p.titel; b.dataset.layout=id;
-    b.setAttribute('aria-pressed', id===Z.layout ? 'true':'false');
-    (p.kat==='text' ? $('layouts') : $('fotolayouts')).appendChild(b);
+  /* Die Klick-Listener hängen an den Containern, nicht an den Chips –
+     deshalb darf hier bei jedem Sprachwechsel neu aufgebaut werden.   */
+  function baueLayoutChips(){
+    ['layouts','fotolayouts','r-layouts','r-fotolayouts'].forEach(id=>$(id).innerHTML='');
+    Object.entries(PRESETS).forEach(([id,p])=>{
+      const b=document.createElement('button');
+      b.className='chip'; b.textContent=p.titel; b.dataset.layout=id;
+      b.setAttribute('aria-pressed', id===Z.layout ? 'true':'false');
+      (p.kat==='text' ? $('layouts') : $('fotolayouts')).appendChild(b);
 
-    const rb=document.createElement('button');
-    rb.className='chip'; rb.textContent=p.titel; rb.dataset.rlayout=id;
-    rb.setAttribute('aria-pressed', (Z.rueck.modus==='design' && id===Z.rueck.layout) ? 'true':'false');
-    (p.kat==='text' ? $('r-layouts') : $('r-fotolayouts')).appendChild(rb);
-  });
-  {
+      const rb=document.createElement('button');
+      rb.className='chip'; rb.textContent=p.titel; rb.dataset.rlayout=id;
+      rb.setAttribute('aria-pressed', (Z.rueck.modus==='design' && id===Z.rueck.layout) ? 'true':'false');
+      (p.kat==='text' ? $('r-layouts') : $('r-fotolayouts')).appendChild(rb);
+    });
     const nb=document.createElement('button');
-    nb.className='chip'; nb.textContent='Nichts'; nb.dataset.rlayout='keine';
+    nb.className='chip'; nb.textContent=T('chip_nichts'); nb.dataset.rlayout='keine';
     nb.setAttribute('aria-pressed', Z.rueck.modus==='keine' ? 'true':'false');
     $('r-layouts').insertBefore(nb, $('r-layouts').firstChild);
   }
+  baueLayoutChips();
   [$('layouts'),$('fotolayouts')].forEach(el=>{
     el.addEventListener('click', e=>{
       const b=e.target.closest('[data-layout]'); if(!b) return;
@@ -1830,7 +2059,8 @@
       b.className='farbe'; b.style.background=f;
       b.dataset.farbe=f;
       b.setAttribute('aria-pressed', f===aktiv ? 'true':'false');
-      b.setAttribute('aria-label','Farbe '+f);
+      b.setAttribute('aria-label',T('farbe_al')+f);
+      b.dataset.al='farbe';
       elt.appendChild(b);
     });
     elt.addEventListener('click', e=>{
@@ -1841,13 +2071,20 @@
       aktualisiere();
     });
   }
-  Object.entries(STILE).forEach(([id,st])=>{
-    const b=document.createElement('button');
-    b.className='chip'; b.textContent=st.titel; b.dataset.stil2=id;
-    b.style.fontFamily=st.disp;
-    b.setAttribute('aria-pressed', id===Z.stil ? 'true':'false');
-    $('stile').appendChild(b);
-  });
+  function stilTitel(id){
+    return (id==='eigene' && Z.eigeneGeladen) ? T('eigene_ok') : T('stil_'+id);
+  }
+  function baueStilChips(){
+    $('stile').innerHTML='';
+    Object.entries(STILE).forEach(([id,st])=>{
+      const b=document.createElement('button');
+      b.className='chip'; b.textContent=stilTitel(id); b.dataset.stil2=id;
+      b.style.fontFamily=st.disp;
+      b.setAttribute('aria-pressed', id===Z.stil ? 'true':'false');
+      $('stile').appendChild(b);
+    });
+  }
+  baueStilChips();
   $('stile').addEventListener('click', e=>{
     const b=e.target.closest('[data-stil2]'); if(!b) return;
     if (b.dataset.stil2==='eigene' && !Z.eigeneGeladen){
@@ -1868,7 +2105,7 @@
       Z.eigeneGeladen=true;
       ['[data-stil2="eigene"]','[data-rs="eigene"]'].forEach(sel=>{
         const c=document.querySelector(sel);
-        if(c){ c.textContent='Eigene ✓'; c.style.fontFamily='"MBH-Eigene",sans-serif'; }
+        if(c){ c.textContent=T('eigene_ok'); c.style.fontFamily='"MBH-Eigene",sans-serif'; }
       });
       if (ZIEL_SCHRIFT==='rueck'){
         document.querySelectorAll('#rueck-stile .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
@@ -1879,20 +2116,24 @@
         document.querySelector('[data-stil2="eigene"]').setAttribute('aria-pressed','true');
         Z.stil='eigene';
       }
-      $('status').textContent='Schrift geladen: '+f.name;
+      $('status').textContent=T('st_schrift_ok')+f.name;
       aktualisiere();
     }catch(err){
-      $('status').textContent='Diese Schriftdatei konnte nicht gelesen werden.';
+      $('status').textContent=T('st_schrift_fehler');
     }
   });
 
-  Object.entries(STILE).forEach(([id,st])=>{
-    const b=document.createElement('button');
-    b.className='chip'; b.textContent=st.titel; b.dataset.rs=id;
-    b.style.fontFamily=st.disp;
-    b.setAttribute('aria-pressed', id===Z.rueck.stil ? 'true':'false');
-    $('rueck-stile').appendChild(b);
-  });
+  function baueRueckStilChips(){
+    $('rueck-stile').innerHTML='';
+    Object.entries(STILE).forEach(([id,st])=>{
+      const b=document.createElement('button');
+      b.className='chip'; b.textContent=stilTitel(id); b.dataset.rs=id;
+      b.style.fontFamily=st.disp;
+      b.setAttribute('aria-pressed', id===Z.rueck.stil ? 'true':'false');
+      $('rueck-stile').appendChild(b);
+    });
+  }
+  baueRueckStilChips();
   $('rueck-stile').addEventListener('click', e=>{
     const b=e.target.closest('[data-rs]'); if(!b) return;
     if (b.dataset.rs==='eigene' && !Z.eigeneGeladen){ ZIEL_SCHRIFT='rueck'; $('fontdatei').click(); return; }
@@ -1945,8 +2186,8 @@
   eigenKachel.className='ikon'; eigenKachel.dataset.ikon='eigen';
   eigenKachel.id='ikon-eigen';
   eigenKachel.setAttribute('aria-pressed','false');
-  eigenKachel.setAttribute('aria-label','Eigenes Symbol hochladen');
-  eigenKachel.title='Eigenes Symbol';
+  eigenKachel.setAttribute('aria-label',T('sym_upload_al'));
+  eigenKachel.title=T('sym_upload_t');
   eigenKachel.innerHTML='<span style="font-size:22px;color:var(--brand);line-height:1">＋</span>';
   $('ikonen').appendChild(eigenKachel);
 
@@ -1989,13 +2230,13 @@
         vor.src=quelle; vor.alt='Eigenes Symbol';
         vor.style.cssText='width:100%;height:100%;object-fit:contain';
         eigenKachel.appendChild(vor);
-        $('status').textContent='Eigenes Symbol geladen.';
+        $('status').textContent=T('st_symbol_ok');
         aktualisiere();
       };
-      img.onerror=()=>{ $('status').textContent='Diese Datei konnte nicht gelesen werden. Am besten PNG mit transparentem Hintergrund oder SVG.'; };
+      img.onerror=()=>{ $('status').textContent=T('st_symbol_fehler'); };
       img.src=quelle;
     };
-    rd.onerror=()=>{ $('status').textContent='Datei konnte nicht gelesen werden.'; };
+    rd.onerror=()=>{ $('status').textContent=T('st_datei_fehler'); };
     if (istSvg) rd.readAsText(f); else rd.readAsDataURL(f);
   });
 
@@ -2026,12 +2267,12 @@
     const r=[];
     /* Es wird immer nur das Foto der Seite gezeigt, an der gerade gearbeitet wird. */
     if (Z.schritt==='s2'){
-      if (hinten) r.push({nr:2,titel:'Foto Rückseite'});
+      if (hinten) r.push({nr:2,titel:T('foto_hinten')});
     } else if (Z.schritt==='s1'){
-      if (vorne) r.push({nr:1,titel:'Foto Vorderseite'});
+      if (vorne) r.push({nr:1,titel:T('foto_vorne')});
     } else {
-      if (vorne)  r.push({nr:1,titel:'Foto Vorderseite'});
-      if (hinten) r.push({nr:2,titel:'Foto Rückseite'});
+      if (vorne)  r.push({nr:1,titel:T('foto_vorne')});
+      if (hinten) r.push({nr:2,titel:T('foto_hinten')});
     }
     return r;
   }
@@ -2051,12 +2292,12 @@
         '<h4>'+r.titel+'</h4>'+
         '<input class="vh" type="file" id="file-'+r.nr+'" accept="image/png,image/jpeg,image/webp">'+
         '<label class="upload-btn" for="file-'+r.nr+'" id="up-'+r.nr+'">'+
-          (geladen ? '✓ Foto gewählt – anderes wählen' : '📷 Foto auswählen')+'</label>'+
-        '<div class="regler"><span class="rlabel">🔍 Größe</span><input type="range" data-t="zoom" data-nr="'+r.nr+'" min="100" max="300" value="'+Math.round(t.zoom*100)+'"><input type="number" class="zahl" data-t="zoom" data-nr="'+r.nr+'" min="100" max="300" value="'+Math.round(t.zoom*100)+'"></div>'+
-        '<div class="regler"><span class="rlabel">↻ Drehen</span><input type="range" data-t="rot" data-nr="'+r.nr+'" min="-180" max="180" value="'+t.rot+'"><input type="number" class="zahl" data-t="rot" data-nr="'+r.nr+'" min="-180" max="180" value="'+t.rot+'"></div>'+
-        '<div class="regler"><span class="rlabel">↔ Seitlich</span><input type="range" data-t="dx" data-nr="'+r.nr+'" min="-100" max="100" value="'+Math.round(t.dx*100)+'"><input type="number" class="zahl" data-t="dx" data-nr="'+r.nr+'" min="-100" max="100" value="'+Math.round(t.dx*100)+'"></div>'+
-        '<div class="regler"><span class="rlabel">↕ Hoch/Tief</span><input type="range" data-t="dy" data-nr="'+r.nr+'" min="-100" max="100" value="'+Math.round(t.dy*100)+'"><input type="number" class="zahl" data-t="dy" data-nr="'+r.nr+'" min="-100" max="100" value="'+Math.round(t.dy*100)+'"></div>'+
-        '<button class="mini" data-reset="'+r.nr+'">Zurücksetzen</button>';
+          (geladen ? T('foto_gewaehlt') : T('foto_waehlen'))+'</label>'+
+        '<div class="regler"><span class="rlabel">'+T('r_groesse')+'</span><input type="range" data-t="zoom" data-nr="'+r.nr+'" min="100" max="300" value="'+Math.round(t.zoom*100)+'"><input type="number" class="zahl" data-t="zoom" data-nr="'+r.nr+'" min="100" max="300" value="'+Math.round(t.zoom*100)+'"></div>'+
+        '<div class="regler"><span class="rlabel">'+T('r_drehen')+'</span><input type="range" data-t="rot" data-nr="'+r.nr+'" min="-180" max="180" value="'+t.rot+'"><input type="number" class="zahl" data-t="rot" data-nr="'+r.nr+'" min="-180" max="180" value="'+t.rot+'"></div>'+
+        '<div class="regler"><span class="rlabel">'+T('r_seitlich')+'</span><input type="range" data-t="dx" data-nr="'+r.nr+'" min="-100" max="100" value="'+Math.round(t.dx*100)+'"><input type="number" class="zahl" data-t="dx" data-nr="'+r.nr+'" min="-100" max="100" value="'+Math.round(t.dx*100)+'"></div>'+
+        '<div class="regler"><span class="rlabel">'+T('r_hochtief')+'</span><input type="range" data-t="dy" data-nr="'+r.nr+'" min="-100" max="100" value="'+Math.round(t.dy*100)+'"><input type="number" class="zahl" data-t="dy" data-nr="'+r.nr+'" min="-100" max="100" value="'+Math.round(t.dy*100)+'"></div>'+
+        '<button class="mini" data-reset="'+r.nr+'">'+T('btn_reset')+'</button>';
       liste.appendChild(k);
       $('file-'+r.nr).addEventListener('change', ev=>ladeFoto(ev, r.nr));
     });
@@ -2099,13 +2340,13 @@
       img.onload=()=>{
         if (ziel===1){ Z.bild=img; Z.t1=neutralT(); } else { Z.bild2=img; Z.t2=neutralT(); }
         baueFotoKarten();
-        $('status').textContent='Foto ist drin.';
+        $('status').textContent=T('st_foto_ok');
         aktualisiere();
       };
-      img.onerror=()=>{ $('status').textContent='Dieses Format geht leider nicht – bitte JPG oder PNG.'; };
+      img.onerror=()=>{ $('status').textContent=T('st_foto_format'); };
       img.src=rd.result;
     };
-    rd.onerror=()=>{ $('status').textContent='Datei konnte nicht gelesen werden.'; };
+    rd.onerror=()=>{ $('status').textContent=T('st_datei_fehler'); };
     rd.readAsDataURL(f);
   }
 
@@ -2165,11 +2406,71 @@
     aktualisiere();
   });
 
+  /* ================= Sprachumschaltung ================= */
+  function setzeSprache(neu, erstesMal){
+    if (!TEXTE[neu]) neu='de';
+    const alt = SPRACHE;
+    SPRACHE = neu;
+    try{ localStorage.setItem('mbh-sprache', neu); }catch(e){}
+    document.documentElement.lang = neu;
+    document.title = T('seite_titel');
+
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      el.textContent = T(el.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+      el.placeholder = T(el.dataset.i18nPh);
+    });
+    document.querySelectorAll('[data-i18n-al]').forEach(el=>{
+      el.setAttribute('aria-label', T(el.dataset.i18nAl));
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el=>{
+      el.title = T(el.dataset.i18nTitle);
+    });
+    /* speczeile hängt am 3D-Zustand, deshalb hier statt über data-i18n */
+    $('speczeile').textContent = d3An ? T('spec_3d') : T('vorschau_spec');
+    document.querySelectorAll('#sprachwahl .flagge').forEach(b=>{
+      b.setAttribute('aria-pressed', b.dataset.lang===neu ? 'true':'false');
+    });
+
+    /* Voreingestellte Sprüche mitziehen – aber nur, wenn der Kunde sie nicht
+       selbst angefasst hat. Sonst wäre eine getippte Widmung weg.          */
+    if (!erstesMal){
+      [['freitext','frei_vorne'],['rfreitext','frei_hinten']].forEach(([id,key])=>{
+        if ($(id).value === TEXTE[alt][key]) $(id).value = TEXTE[neu][key];
+      });
+      $('status').textContent='';
+    }
+
+    bauePresets();
+    baueLayoutChips(); baueStilChips(); baueRueckStilChips();
+    document.querySelectorAll('[data-al="farbe"]').forEach(b=>{
+      b.setAttribute('aria-label', T('farbe_al')+b.dataset.farbe);
+    });
+    const ike=$('ikon-eigen');
+    if (ike){ ike.setAttribute('aria-label',T('sym_upload_al')); ike.title=T('sym_upload_t'); }
+
+    fuellePreset(); fuelleRueck(); beschrifte(); panelUpdate(); aktualisiere();
+  }
+  $('sprachwahl').addEventListener('click', e=>{
+    const b=e.target.closest('[data-lang]'); if(!b) return;
+    if (b.dataset.lang!==SPRACHE) setzeSprache(b.dataset.lang);
+  });
+
+  /* Gemerkte Wahl schlägt die Browsersprache. Ohne beides bleibt es Deutsch. */
+  let startSprache='de';
+  try{
+    const gemerkt=localStorage.getItem('mbh-sprache');
+    if (gemerkt && TEXTE[gemerkt]) startSprache=gemerkt;
+    else if (!(navigator.language||'de').toLowerCase().startsWith('de')) startSprache='en';
+  }catch(e){}
+
   fuellePreset();
   fuelleRueck();
   beschrifte();
   rueckUI();
   panelUpdate();
+  setzeSprache(startSprache, true);
   document.fonts.ready.then(aktualisiere);
   aktualisiere();
 })();

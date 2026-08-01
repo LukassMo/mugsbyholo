@@ -65,6 +65,34 @@ keeps the file self-contained. Worth knowing if you ever change the print size:
 - Steps 1 and 2 stay flat (that is where the layout is judged); step 3 switches to 3D on its own
   and slowly turns. Once the customer touches the `3D` chip, their choice wins for the session.
 - Without WebGL the chip never appears and everything behaves exactly as before.
+- `#speczeile` is written by both `setze3D()` and `setzeSprache()`, so it carries no `data-i18n`
+  attribute — the caption depends on the 3D state, not just the language.
+
+## German / English
+
+The designer switches language in the browser; there is no second HTML file. Two flag buttons
+sit in the header, the choice is remembered in `localStorage` under `mbh-sprache`, and first-time
+visitors get English unless `navigator.language` starts with `de`.
+
+Adding or changing a text:
+
+- **Static markup** — put `data-i18n="key"` on the element (`data-i18n-ph` for a placeholder,
+  `data-i18n-al` for an aria-label, `data-i18n-title` for a tooltip) and add `key` to **both**
+  tables in `TEXTE`. The German text stays in the HTML as the fallback shown before JS runs.
+- **Strings built in JavaScript** — write `T('key')`, never a bare string.
+- **The phrases printed on the mug** live in `PRESET_TEXTE.de` / `.en`, keyed by layout. `nm` must
+  be present in both languages or absent in both — its presence is what shows and hides the name
+  line. Placeholders (`{name}`, `{jahr}`, `{alter}`, `{initial}`) must match between languages.
+- Anything the user typed is left alone on a language switch; only untouched preset fields follow
+  the new language.
+
+A missing English key silently falls back to German rather than breaking the page, so check both
+tables after editing. `scripts/` has no test runner — the checks used when this was built were a
+key-coverage script and a headless Edge run (`--headless=new --dump-dom`) that clicks both flags.
+
+`NAEHER_PT` (default 30) moves the back side that many typographic points closer to the text side,
+in both the print file and the preview crop, via the shared `seitenLayout()`. Set it to 0 for the
+old spacing, or negative to push the two sides further apart.
 
 ## Deploying
 
