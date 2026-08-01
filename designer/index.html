@@ -136,9 +136,59 @@
   }
 
   /* ---------- Steuerung ---------- */
-  .steuer{border-left:1px solid var(--linie);padding:16px 18px 40px;background:#fbfaf8;overflow-y:auto;height:100%}
+  .steuer-huelle{
+    position:relative;height:100%;min-height:0;
+    border-left:1px solid var(--linie);background:#fbfaf8;
+  }
+  .steuer{padding:16px 18px 40px;background:#fbfaf8;overflow-y:auto;height:100%}
+  /* Die Scrollleiste bleibt dauerhaft sichtbar. Voreingestellt blendet sie
+     sich aus, bis man hovert – dadurch wirkte die Spalte abgeschlossen.  */
+  .steuer{scrollbar-width:thin;scrollbar-color:#c9c2b6 #efece6}
+  .steuer::-webkit-scrollbar{width:11px}
+  /* Ohne das setzt Chromium die altmodischen Pfeilknöpfe oben und unten dazu */
+  .steuer::-webkit-scrollbar-button{display:none;width:0;height:0}
+  .steuer::-webkit-scrollbar-track{background:#efece6}
+  .steuer::-webkit-scrollbar-thumb{
+    background:#c9c2b6;border-radius:99px;border:3px solid #efece6;
+  }
+  .steuer:hover::-webkit-scrollbar-thumb{background:#a9a094}
+
+  /* Verlauf + Knopf am unteren Rand, solange noch etwas darunter liegt */
+  .mehr-hinweis{
+    position:absolute;left:1px;right:0;bottom:0;height:88px;
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:13px;
+    background:linear-gradient(to top, #fbfaf8 34%, rgba(251,250,248,.86) 62%, rgba(251,250,248,0));
+    pointer-events:none;opacity:0;visibility:hidden;transition:opacity .18s ease;
+  }
+  .mehr-hinweis.an{opacity:1;visibility:visible}
+  .mehr-knopf{
+    pointer-events:auto;display:inline-flex;align-items:center;gap:7px;
+    padding:8px 15px;border-radius:999px;border:1px solid var(--brand);
+    background:var(--karte);color:var(--brand);cursor:pointer;
+    font-family:inherit;font-size:12.5px;font-weight:600;line-height:1;
+    box-shadow:0 2px 10px rgba(20,20,18,.14);
+  }
+  .mehr-knopf:hover{background:var(--brand);color:#fff}
+  .mehr-knopf .pfeil{font-size:14px;animation:tippt 1.7s ease-in-out infinite}
+  @keyframes tippt{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+  @media(prefers-reduced-motion:reduce){
+    .mehr-knopf .pfeil{animation:none}
+    .steuer{scroll-behavior:auto}
+  }
+
+  /* Zähler neben der Gruppenüberschrift – zeigt, dass es mehr Farben gibt,
+     als man auf den ersten Blick vermutet.                               */
+  .gruppenkopf{display:flex;align-items:baseline;gap:8px}
+  .zaehler{
+    font-size:10.5px;font-weight:700;letter-spacing:.03em;
+    color:var(--brand);background:var(--lav);
+    padding:2px 8px;border-radius:999px;margin-bottom:5px;white-space:nowrap;
+  }
+
   @media(max-width:900px){
-    .steuer{border-left:none;overflow:visible;height:auto;padding:14px 16px 40px}
+    .steuer-huelle{height:auto;border-left:none}
+    .steuer{overflow:visible;height:auto;padding:14px 16px 40px}
+    .mehr-hinweis{display:none}
   }
 
   .tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:16px}
@@ -357,7 +407,8 @@
 
   </div>
 
-  <div class="steuer">
+  <div class="steuer-huelle">
+  <div class="steuer" id="steuer">
 
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" aria-selected="true"  data-s="s1"><span class="nr" data-i18n="nr1">Schritt 1</span><span data-i18n="tab1">Vorderseite</span></button>
@@ -411,7 +462,10 @@
       </div>
 
       <div class="feld">
-        <span class="gruppenlabel" data-i18n="grp_textfarbe">Textfarbe</span>
+        <div class="gruppenkopf">
+          <span class="gruppenlabel" data-i18n="grp_textfarbe">Textfarbe</span>
+          <span class="zaehler" id="anz-farben"></span>
+        </div>
         <div class="farben" id="farben"></div>
       </div>
 
@@ -481,7 +535,10 @@
       </details>
 
       <div class="feld" id="farb-bereich">
-        <span class="gruppenlabel" data-i18n="grp_farbe">Farbe</span>
+        <div class="gruppenkopf">
+          <span class="gruppenlabel" data-i18n="grp_farbe">Farbe</span>
+          <span class="zaehler" id="anz-elemfarben"></span>
+        </div>
         <div class="farben" id="elemfarben"></div>
       </div>
 
@@ -534,6 +591,17 @@
 
 
     <p class="status" id="status"></p>
+  </div>
+
+  <!-- Macht sichtbar, dass unter dem Sichtbereich noch Einstellungen stehen.
+       Ohne den Hinweis wurde die Spalte für vollständig gehalten und die
+       Farbfelder weiter unten schlicht übersehen. Rein zusätzlich, deshalb
+       aus dem Tab-Fluss und für Screenreader ausgeblendet.                 -->
+  <div class="mehr-hinweis" id="mehr-hinweis" aria-hidden="true">
+    <button class="mehr-knopf" id="mehr-knopf" type="button" tabindex="-1">
+      <span data-i18n="mehr_optionen">Mehr Optionen</span><span class="pfeil">↓</span>
+    </button>
+  </div>
   </div>
 </div>
 
@@ -598,6 +666,7 @@
       r_abstand:'↕ Abstand', r_groesse:'🔍 Größe', r_drehen:'↻ Drehen',
       r_seitlich:'↔ Seitlich', r_hochtief:'↕ Hoch/Tief',
       grp_farbe:'Farbe',
+      mehr_optionen:'Mehr Optionen',
       btn_tausch:'⇄ Seiten tauschen',
       btn_zurueck:'← Zurück', btn_weiter_fertig:'Weiter: Fertigstellen →',
       s3_titel:'Fast geschafft!',
@@ -664,6 +733,7 @@
       r_abstand:'↕ Spacing', r_groesse:'🔍 Size', r_drehen:'↻ Rotate',
       r_seitlich:'↔ Sideways', r_hochtief:'↕ Up/Down',
       grp_farbe:'Colour',
+      mehr_optionen:'More options',
       btn_tausch:'⇄ Swap sides',
       btn_zurueck:'← Back', btn_weiter_fertig:'Next: finish →',
       s3_titel:'Almost there!',
@@ -2240,6 +2310,8 @@
 
   baueFarben($('farben'), FARBEN, Z.tinte, f=>Z.tinte=f);
   baueFarben($('elemfarben'), ELEMFARBEN, Z.elemFarbe, f=>Z.elemFarbe=f);
+  $('anz-farben').textContent = FARBEN.length;
+  $('anz-elemfarben').textContent = ELEMFARBEN.length;
 
   function svgKachel(name){
     return '<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
@@ -2561,6 +2633,46 @@
   setzeSprache(startSprache, true);
   document.fonts.ready.then(aktualisiere);
   aktualisiere();
+
+  /* ---------- Scrollhinweis der Steuerspalte ----------
+     Die Spalte scrollt seit jeher, nur sah man es nicht: Windows blendet die
+     Scrollleiste aus, bis man sie berührt, und der Inhalt endete am unteren
+     Rand ohne Anschnitt. Farbfelder und Schriftstile wurden deshalb
+     übersehen. Verlauf und Knopf erscheinen nur, solange wirklich noch
+     etwas darunter liegt, und verschwinden am Ende der Liste.            */
+  (function scrollHinweis(){
+    const box=$('steuer'), hinweis=$('mehr-hinweis'), knopf=$('mehr-knopf');
+    if (!box || !hinweis || !knopf) return;
+    const schmal = matchMedia('(max-width:900px)');
+
+    let geplant=false;
+    function pruefe(){
+      geplant=false;
+      if (schmal.matches){ hinweis.classList.remove('an'); return; }
+      const rest = box.scrollHeight - box.scrollTop - box.clientHeight;
+      hinweis.classList.toggle('an', rest > 24);
+    }
+    /* Über rAF gebündelt: Tabwechsel und Chipklicks lösen viele Mutationen
+       gleichzeitig aus, jede einzelne Messung würde das Layout erzwingen. */
+    function plane(){
+      if (geplant) return;
+      geplant=true;
+      requestAnimationFrame(pruefe);
+    }
+
+    box.addEventListener('scroll', plane, {passive:true});
+    addEventListener('resize', plane);
+    schmal.addEventListener('change', plane);
+    /* Sektionen werden ein- und ausgeblendet, Chips neu aufgebaut – dabei
+       ändert sich die Scrollhöhe, ohne dass gescrollt wurde.             */
+    new MutationObserver(plane).observe(box, {childList:true, subtree:true, attributes:true});
+    document.fonts.ready.then(plane);
+
+    knopf.addEventListener('click', ()=>{
+      box.scrollBy({top: Math.round(box.clientHeight*0.82), behavior:'smooth'});
+    });
+    plane();
+  })();
 })();
 </script>
 </body>
