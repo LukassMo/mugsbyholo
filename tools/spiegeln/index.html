@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MugsByHolo · Bild spiegeln</title>
+<meta name="description" content="Kundenbilder vor dem Sublimationsdruck spiegeln – läuft komplett im Browser.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/assets/favicon.png" type="image/png">
+<meta name="theme-color" content="#F7F6F3">
+<style>
+  :root{
+    --paper:#F7F6F3;
+    --ink:#171715;
+    --brand:#5a4a63;
+    --lav:#efe7fd;
+    --grau:#8a8880;
+    --linie:#dedcd4;
+    --cyan:#5cc2d8;
+    --karte:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    background:var(--paper);color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    min-height:100vh;
+  }
+  header{
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    padding:14px 20px;border-bottom:1px solid var(--linie);
+  }
+  header h1{font-size:16px;font-weight:700;color:var(--brand)}
+  header .spec{font-size:11px;color:var(--grau);text-decoration:none;white-space:nowrap}
+  header a.spec:hover{color:#F1641E}
+
+  main{max-width:1080px;margin:0 auto;padding:22px 20px 60px}
+
+  /* ---------- Ablagefläche ---------- */
+  .ablage{
+    display:block;width:100%;text-align:center;cursor:pointer;
+    border:2px dashed var(--brand);border-radius:10px;background:var(--karte);
+    padding:34px 20px;transition:background .15s,border-color .15s;
+  }
+  .ablage:hover,.ablage:focus-visible{background:var(--lav);outline:none}
+  .ablage.drueber{background:var(--lav);border-color:var(--cyan)}
+  .ablage .gross{display:block;font-size:16px;font-weight:600;color:var(--brand);margin-bottom:6px}
+  .ablage .klein{display:block;font-size:12.5px;color:var(--grau);line-height:1.5}
+  .vh{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+  /* ---------- Bedienleiste ---------- */
+  .leiste{
+    display:flex;flex-wrap:wrap;align-items:center;gap:9px;
+    margin:18px 0 4px;
+  }
+  /* display:flex würde das hidden-Attribut sonst aushebeln */
+  .leiste[hidden]{display:none}
+  .leiste .luecke{flex:1 1 auto}
+  .chip{
+    padding:8px 13px;border:1px solid var(--linie);border-radius:6px;
+    background:var(--karte);font-size:13px;font-family:inherit;color:var(--ink);cursor:pointer;
+  }
+  .chip[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .haupt{
+    padding:9px 16px;border:1px solid var(--brand);border-radius:6px;
+    background:var(--brand);color:#fff;font-size:13px;font-weight:600;
+    font-family:inherit;cursor:pointer;
+  }
+  .haupt:hover{background:#4a3c52}
+  .haupt[disabled]{opacity:.45;cursor:default}
+  .zweit{
+    padding:9px 14px;border:1px solid var(--linie);border-radius:6px;
+    background:var(--karte);font-size:13px;font-family:inherit;color:var(--grau);cursor:pointer;
+  }
+  .zweit:hover{color:var(--ink);border-color:var(--grau)}
+  button:focus-visible,.ablage:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .gruppenlabel{
+    font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--grau);font-weight:600;margin-right:2px;
+  }
+
+  /* ---------- Ergebnisse ---------- */
+  .liste{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px;margin-top:16px}
+  .karte{
+    border:1px solid var(--linie);border-radius:9px;background:var(--karte);
+    padding:12px;display:flex;flex-direction:column;gap:10px;
+  }
+  .bildfeld{
+    background:
+      linear-gradient(45deg,#eeece6 25%,transparent 25%,transparent 75%,#eeece6 75%),
+      linear-gradient(45deg,#eeece6 25%,transparent 25%,transparent 75%,#eeece6 75%),
+      var(--karte);
+    background-size:16px 16px;background-position:0 0,8px 8px;
+    border-radius:6px;display:flex;align-items:center;justify-content:center;
+    min-height:150px;overflow:hidden;
+  }
+  .bildfeld img{display:block;max-width:100%;max-height:210px;width:auto;height:auto}
+  .karte h2{font-size:13px;font-weight:600;word-break:break-all;line-height:1.35}
+  .meta{font-size:11.5px;color:var(--grau);line-height:1.6}
+  .meta b{color:var(--ink);font-weight:600}
+  .warn{color:#a8462b}
+  .kartenknoepfe{display:flex;gap:7px;margin-top:auto}
+  .kartenknoepfe .haupt{flex:1 1 auto;text-align:center}
+
+  .hinweis{font-size:12px;color:var(--grau);line-height:1.6;margin-top:22px}
+  .hinweis strong{color:var(--ink)}
+  footer{
+    max-width:1080px;margin:0 auto;padding:20px;border-top:1px solid var(--linie);
+    font-size:11.5px;color:var(--grau);line-height:1.7;
+  }
+  footer a{color:var(--brand)}
+  @media(max-width:620px){
+    .ablage{padding:26px 14px}
+    main{padding:16px 14px 50px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Bild spiegeln</h1>
+  <a class="spec" href="/designer/">← Zum Designer</a>
+</header>
+
+<main>
+
+  <label class="ablage" id="ablage" tabindex="0">
+    <span class="gross">Bilder hierher ziehen oder klicken</span>
+    <span class="klein">
+      Mehrere gleichzeitig möglich · auch per Strg + V aus der Zwischenablage<br>
+      Die Bilder bleiben auf diesem Gerät und werden nirgendwo hochgeladen.
+    </span>
+    <input class="vh" type="file" id="datei" accept="image/*" multiple>
+  </label>
+
+  <div class="leiste" id="leiste" hidden>
+    <span class="gruppenlabel">Spiegeln</span>
+    <button class="chip" id="achse-h" type="button" aria-pressed="true">↔ Waagerecht</button>
+    <button class="chip" id="achse-v" type="button" aria-pressed="false">↕ Senkrecht</button>
+    <span class="luecke"></span>
+    <button class="zweit" id="btn-leeren" type="button">Liste leeren</button>
+    <button class="haupt" id="btn-alle" type="button">Alle speichern</button>
+  </div>
+
+  <div class="liste" id="liste"></div>
+
+  <p class="hinweis" id="hinweis" hidden>
+    <strong>Auflösung und Druckgröße bleiben erhalten.</strong>
+    Gespeichert wird verlustfrei als PNG, in voller Originalauflösung. Wenn im
+    Ausgangsbild eine dpi-Angabe steckt, wird sie mitgeschrieben – das Bild kommt
+    dann genauso groß aus dem Drucker wie vorher. Ohne Angabe im Original kann
+    auch keine gesetzt werden; solche Bilder skalierst du im Druckprogramm.
+  </p>
+
+</main>
+
+<footer>
+  Läuft vollständig in deinem Browser. Keine Übertragung, keine Speicherung, kein Tracking.<br>
+  <a href="/">Startseite</a> · <a href="/designer/">Tassen-Designer</a>
+</footer>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+
+  /* Zustand: pro Bild das ImageBitmap (volle Auflösung) plus alles, was wir
+     aus der Originaldatei über die Druckgröße erfahren haben.              */
+  const bilder = [];
+  let achseH = true, achseV = false;
+
+  /* ================= dpi aus der Originaldatei lesen =================
+     Ein gespiegeltes Bild ohne dpi-Angabe wäre für den Druck wertlos: der
+     Drucker nimmt dann 96 dpi an und die Tasse bekommt ein Motiv in völlig
+     anderer Größe. Deshalb wird die Angabe aus dem Original übernommen. */
+
+  /* PNG: pHYs-Chunk, Pixel pro Meter */
+  function dpiAusPng(b){
+    if (b.length<8 || b[0]!==0x89 || b[1]!==0x50) return null;
+    let p=8;
+    while (p+8 <= b.length){
+      const len = (b[p]<<24|b[p+1]<<16|b[p+2]<<8|b[p+3])>>>0;
+      const typ = String.fromCharCode(b[p+4],b[p+5],b[p+6],b[p+7]);
+      if (typ==='pHYs' && p+8+9 <= b.length){
+        const x = (b[p+8]<<24|b[p+9]<<16|b[p+10]<<8|b[p+11])>>>0;
+        const einheit = b[p+16];
+        if (einheit===1 && x>0) return x*0.0254;   /* Pixel/Meter -> dpi */
+        return null;
+      }
+      if (typ==='IDAT' || typ==='IEND') return null;
+      p += 12+len;
+    }
+    return null;
+  }
+
+  /* JPEG: APP0-Segment im JFIF-Kopf, Einheit 1 = dpi, 2 = dots/cm */
+  function dpiAusJpeg(b){
+    if (b.length<4 || b[0]!==0xFF || b[1]!==0xD8) return null;
+    let p=2;
+    while (p+4 <= b.length){
+      if (b[p]!==0xFF) return null;
+      const marke = b[p+1];
+      if (marke===0xD8 || marke===0x01 || (marke>=0xD0 && marke<=0xD7)){ p+=2; continue; }
+      if (marke===0xDA || marke===0xD9) return null;    /* ab hier Bilddaten */
+      const len = (b[p+2]<<8|b[p+3]);
+      if (marke===0xE0 && p+4+9 <= b.length
+          && b[p+4]===0x4A && b[p+5]===0x46 && b[p+6]===0x49 && b[p+7]===0x46 && b[p+8]===0x00){
+        const einheit = b[p+11];
+        const x = (b[p+12]<<8|b[p+13]);
+        if (x>0){
+          if (einheit===1) return x;                    /* dpi */
+          if (einheit===2) return x*2.54;               /* dots/cm -> dpi */
+        }
+        return null;                                    /* Einheit 0 = nur Seitenverhältnis */
+      }
+      p += 2+len;
+    }
+    return null;
+  }
+
+  function dpiAus(bytes){
+    return dpiAusPng(bytes) || dpiAusJpeg(bytes) || null;
+  }
+
+  /* ================= dpi ins Ergebnis-PNG schreiben ================= */
+  const crcTab = (()=>{
+    const t=new Uint32Array(256);
+    for (let n=0;n<256;n++){
+      let c=n;
+      for (let k=0;k<8;k++) c = (c&1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1);
+      t[n]=c>>>0;
+    }
+    return t;
+  })();
+  function crc32(buf){
+    let c=0xFFFFFFFF;
+    for (let i=0;i<buf.length;i++) c = crcTab[(c ^ buf[i]) & 0xFF] ^ (c>>>8);
+    return (c ^ 0xFFFFFFFF)>>>0;
+  }
+  function mitAufloesung(bytes, dpi){
+    const ppm   = Math.round(dpi/0.0254);
+    const chunk = new Uint8Array(21);            /* 4 Länge + 4 Typ + 9 Daten + 4 CRC */
+    const dv    = new DataView(chunk.buffer);
+    dv.setUint32(0, 9);
+    chunk.set([0x70,0x48,0x59,0x73], 4);         /* "pHYs" */
+    dv.setUint32(8, ppm); dv.setUint32(12, ppm);
+    chunk[16] = 1;                               /* Einheit: Meter */
+    dv.setUint32(17, crc32(chunk.subarray(4,17)));
+    /* IHDR ist immer der erste Chunk und immer gleich lang:
+       8 Byte Signatur + 4 Länge + 4 Typ + 13 Daten + 4 CRC = 33 */
+    const schnitt = 33;
+    const raus = new Uint8Array(bytes.length + chunk.length);
+    raus.set(bytes.subarray(0, schnitt), 0);
+    raus.set(chunk, schnitt);
+    raus.set(bytes.subarray(schnitt), schnitt + chunk.length);
+    return raus;
+  }
+
+  /* ================= Spiegeln ================= */
+  function zeichne(bm, breite, hoehe){
+    const c = document.createElement('canvas');
+    c.width = breite; c.height = hoehe;
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.translate(achseH ? breite : 0, achseV ? hoehe : 0);
+    ctx.scale(achseH ? -1 : 1, achseV ? -1 : 1);
+    ctx.drawImage(bm, 0, 0, breite, hoehe);
+    return c;
+  }
+
+  /* Vorschau bewusst klein rendern – bei zehn 6000-px-Fotos gleichzeitig
+     würden die vollen Canvas sonst den Speicher sprengen. Die volle
+     Auflösung entsteht erst beim Speichern.                              */
+  function vorschau(eintrag){
+    const max = 420;
+    const s = Math.min(1, max/Math.max(eintrag.bm.width, eintrag.bm.height));
+    const c = zeichne(eintrag.bm, Math.max(1,Math.round(eintrag.bm.width*s)),
+                                  Math.max(1,Math.round(eintrag.bm.height*s)));
+    eintrag.img.src = c.toDataURL('image/png');
+  }
+
+  function pngBlob(canvas){
+    return new Promise(res=>canvas.toBlob(res,'image/png'));
+  }
+
+  async function speichere(eintrag){
+    const c = zeichne(eintrag.bm, eintrag.bm.width, eintrag.bm.height);
+    let blob = await pngBlob(c);
+    if (eintrag.dpi){
+      try{
+        const roh = new Uint8Array(await blob.arrayBuffer());
+        blob = new Blob([mitAufloesung(roh, eintrag.dpi)], {type:'image/png'});
+      }catch(e){ /* ohne dpi-Angabe bleibt das Bild korrekt, nur nicht maßstabsgetreu */ }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = eintrag.basis + '-gespiegelt.png';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  }
+
+  /* ================= Oberfläche ================= */
+  function masse(eintrag){
+    const teile = [`<b>${eintrag.bm.width} × ${eintrag.bm.height}</b> px`];
+    if (eintrag.dpi){
+      const b = (eintrag.bm.width/eintrag.dpi*2.54).toFixed(1);
+      const h = (eintrag.bm.height/eintrag.dpi*2.54).toFixed(1);
+      teile.push(`${Math.round(eintrag.dpi)} dpi · gedruckt <b>${b} × ${h} cm</b>`);
+    } else {
+      teile.push('<span class="warn">keine dpi-Angabe im Original</span>');
+    }
+    return teile.join('<br>');
+  }
+
+  function baueKarte(eintrag){
+    const k = document.createElement('div');
+    k.className = 'karte';
+
+    const feld = document.createElement('div');
+    feld.className = 'bildfeld';
+    eintrag.img = document.createElement('img');
+    eintrag.img.alt = 'Gespiegelte Vorschau von ' + eintrag.name;
+    feld.appendChild(eintrag.img);
+
+    const titel = document.createElement('h2');
+    titel.textContent = eintrag.name;
+
+    const meta = document.createElement('p');
+    meta.className = 'meta';
+    meta.innerHTML = masse(eintrag);
+
+    const knoepfe = document.createElement('div');
+    knoepfe.className = 'kartenknoepfe';
+    const speichern = document.createElement('button');
+    speichern.className = 'haupt'; speichern.type = 'button';
+    speichern.textContent = 'Speichern';
+    speichern.addEventListener('click', ()=>speichere(eintrag));
+    const weg = document.createElement('button');
+    weg.className = 'zweit'; weg.type = 'button';
+    weg.textContent = 'Entfernen';
+    weg.addEventListener('click', ()=>{
+      const i = bilder.indexOf(eintrag);
+      if (i>=0) bilder.splice(i,1);
+      eintrag.bm.close && eintrag.bm.close();
+      k.remove();
+      leisteUpdate();
+    });
+    knoepfe.append(speichern, weg);
+
+    k.append(feld, titel, meta, knoepfe);
+    $('liste').appendChild(k);
+    vorschau(eintrag);
+  }
+
+  function leisteUpdate(){
+    const leer = bilder.length===0;
+    $('leiste').hidden = leer;
+    $('hinweis').hidden = leer;
+  }
+
+  async function nimm(dateien){
+    for (const f of dateien){
+      if (!f.type.startsWith('image/')) continue;
+      let bm, bytes;
+      try{
+        bytes = new Uint8Array(await f.arrayBuffer());
+        /* from-image dreht Handyfotos nach ihrer EXIF-Angabe gerade – sonst
+           spiegelt man ein liegendes Bild und wundert sich über das Ergebnis. */
+        bm = await createImageBitmap(f, {imageOrientation:'from-image'});
+      }catch(e){
+        try{ bm = await createImageBitmap(f); }
+        catch(e2){ continue; }
+      }
+      const eintrag = {
+        name: f.name || 'bild.png',
+        basis: (f.name || 'bild').replace(/\.[^.]+$/,''),
+        bm, dpi: bytes ? dpiAus(bytes) : null
+      };
+      bilder.push(eintrag);
+      baueKarte(eintrag);
+    }
+    leisteUpdate();
+  }
+
+  /* ---- Eingabe: Dateiauswahl, Ziehen, Zwischenablage ---- */
+  $('datei').addEventListener('change', e=>{
+    nimm(e.target.files);
+    e.target.value = '';                 /* dieselbe Datei soll erneut gehen */
+  });
+
+  const ablage = $('ablage');
+  ablage.addEventListener('keydown', e=>{
+    if (e.key==='Enter' || e.key===' '){ e.preventDefault(); $('datei').click(); }
+  });
+  ['dragenter','dragover'].forEach(t=>{
+    document.addEventListener(t, e=>{ e.preventDefault(); ablage.classList.add('drueber'); });
+  });
+  ['dragleave','drop'].forEach(t=>{
+    document.addEventListener(t, e=>{
+      e.preventDefault();
+      if (t==='drop' || e.relatedTarget===null) ablage.classList.remove('drueber');
+    });
+  });
+  document.addEventListener('drop', e=>{
+    if (e.dataTransfer && e.dataTransfer.files.length) nimm(e.dataTransfer.files);
+  });
+  document.addEventListener('paste', e=>{
+    if (!e.clipboardData) return;
+    const f = [...e.clipboardData.files];
+    if (f.length) nimm(f);
+  });
+
+  /* ---- Achsen ---- */
+  function setzeAchse(){
+    $('achse-h').setAttribute('aria-pressed', achseH?'true':'false');
+    $('achse-v').setAttribute('aria-pressed', achseV?'true':'false');
+    bilder.forEach(vorschau);
+  }
+  $('achse-h').addEventListener('click', ()=>{ achseH=!achseH; setzeAchse(); });
+  $('achse-v').addEventListener('click', ()=>{ achseV=!achseV; setzeAchse(); });
+
+  /* ---- Sammelaktionen ---- */
+  $('btn-alle').addEventListener('click', async ()=>{
+    const k = $('btn-alle');
+    k.disabled = true;
+    /* Nacheinander mit Pause: mehrere Downloads im selben Moment blockieren
+       die Browser als vermeintliches Pop-up-Gewitter.                     */
+    for (const e of bilder){
+      await speichere(e);
+      await new Promise(r=>setTimeout(r,350));
+    }
+    k.disabled = false;
+  });
+  $('btn-leeren').addEventListener('click', ()=>{
+    bilder.forEach(e=>e.bm.close && e.bm.close());
+    bilder.length = 0;
+    $('liste').innerHTML = '';
+    leisteUpdate();
+  });
+})();
+</script>
+</body>
+</html>
