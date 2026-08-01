@@ -1326,31 +1326,26 @@
 
   /* ---------- Zwei-Foto-Layouts ---------- */
   /* ================= Rendern ================= */
-  /* Rückt die Rückseite um NAEHER_PT näher an die Textseite. Wert in
-     typografischen Punkten (1 pt = 1/72 Zoll), passend zur Druckvorlage.
-     0 = alte Aufteilung, negativ = weiter auseinander.                   */
-  const NAEHER_PT = 30;
-  const pt = n => Math.round(n / 72 * DPI);
+  /* Anteil des Bogens, der zwischen den beiden Motiven frei bleibt – das ist
+     die Tassenseite gegenüber dem Griff. Kleiner = die Motive rücken enger
+     zusammen und weiter an den Griff heran.                                */
+  const LUECKE_ANTEIL = 0.0925;
 
-  /* Einmal berechnet, von Druck und Vorschau-Ausschnitt gemeinsam benutzt –
-     sonst zeigt die Vorschau einen anderen Ausschnitt als das Druckbild.  */
+  /* Beide Druckflächen sind gleich breit und liegen spiegelbildlich zur
+     Bogenmitte. Die Bogenmitte sitzt dem Griff genau gegenüber, also hat
+     damit jedes der beiden Motive denselben Abstand zum Griff – im Druck
+     wie in der 3D-Vorschau.
+     Einmal berechnet, von Druck und Vorschau-Ausschnitt gemeinsam benutzt,
+     sonst zeigt die Vorschau einen anderen Ausschnitt als das Druckbild.   */
   function seitenLayout(W){
-    const RAND = W*0.05;
-    const VERSATZ = px(3);            /* rechte Seite 3 cm weiter rechts */
-    const naeher = pt(NAEHER_PT);
-    const zwB = W*0.43;
-    let textX, elemX, zwT=zwB, zwE=zwB;
-    if (Z.textSeite==='links'){
-      textX = RAND;
-      elemX = W - RAND - zwB + VERSATZ;
-      zwE   = W - elemX - W*0.005;
-      elemX -= naeher;                /* Rückseite steht rechts -> nach links */
-    } else {
-      elemX = RAND + naeher;          /* Rückseite steht links -> nach rechts */
-      textX = W - RAND - zwB + VERSATZ;
-      zwT   = W - textX - W*0.005;
-    }
-    return {textX, elemX, zwT, zwE};
+    const RAND   = W*0.05;
+    const LUECKE = W*LUECKE_ANTEIL;
+    const zw     = (W - 2*RAND - LUECKE)/2;
+    const links  = RAND;
+    const rechts = W - RAND - zw;     /* exaktes Spiegelbild von links */
+    return (Z.textSeite==='links')
+      ? {textX:links,  elemX:rechts, zwT:zw, zwE:zw}
+      : {textX:rechts, elemX:links,  zwT:zw, zwE:zw};
   }
 
   function rendere(ctx, W, H, d){
@@ -1502,7 +1497,7 @@
     const WINKEL = {vorne:0, hinten:.5*BOGEN};
     /* Griff */
     const G_RING=2.18, G_ROHR=.56, G_PHI=1.83, G_ABST=4.30, G_HOCH=.6;
-    const GRIFF_AUS = G_ABST + G_RING + G_ROHR;    /* steht ~7 cm von der Achse ab */
+    const GRIFF_AUS = G_ABST + G_RING + G_ROHR*1.12;  /* steht ~7 cm von der Achse ab */
 
     /* ---- Geometrie: Pos3 · Normale3 · UV2 · Modus1 ----
        Modus 0 = blanke Keramik, 1 = bedruckt, 2 = Innenraum */
@@ -1539,28 +1534,63 @@
       }
       for (let i=0;i<segs;i++) IDX.push(basis, basis+1+i, basis+2+i);
     }
+    /* Ring zwischen zwei Profilpunkten (r,y) mit eigenen Normalen – damit
+       lassen sich Rundungen aus mehreren Streifen zusammensetzen.        */
+    function profil(p0, p1, segs, modus){
+      const basis = V.length/9;
+      for (let i=0;i<=segs;i++){
+        const th=i/segs*2*Math.PI, s=Math.sin(th), c=Math.cos(th);
+        eck([p0.r*s, p0.y, p0.r*c], [p0.nr*s, p0.ny, p0.nr*c], 0,0, modus);
+        eck([p1.r*s, p1.y, p1.r*c], [p1.nr*s, p1.ny, p1.nr*c], 0,0, modus);
+      }
+      quads(basis, segs);
+    }
+    /* Viertel- oder Halbrundung: Mittelpunkt (mr,my), Radius rr, Winkel a0→a1.
+       Winkel 0 = nach außen, PI/2 = nach oben, PI = nach innen.            */
+    function rundung(mr, my, rr, a0, a1, stufen, segs, modus){
+      const p = a => ({r:mr+rr*Math.cos(a), y:my+rr*Math.sin(a),
+                       nr:Math.cos(a),      ny:Math.sin(a)});
+      for (let k=0;k<stufen;k++){
+        profil(p(a0+(a1-a0)*k/stufen), p(a0+(a1-a0)*(k+1)/stufen), segs, modus);
+      }
+    }
 
     const yU=-T_H/2, yO=T_H/2, rI=T_R-WAND;
     const yD0=yU+(T_H-H_CM)/2, yD1=yD0+H_CM;
-    band(0, 2*Math.PI, 96, yU, yD0, T_R, 0,0, 0,0, 0, 1);                 /* unter dem Druck */
-    band(TH0, TH0+BOGEN, 168, yD0, yD1, T_R, 0,1, 0,1, 1, 1);             /* Druckbereich */
-    band(TH0+BOGEN, TH0+2*Math.PI, 56, yD0, yD1, T_R, 0,0, 0,0, 0, 1);    /* Lücke am Griff */
-    band(0, 2*Math.PI, 96, yD1, yO, T_R, 0,0, 0,0, 0, 1);                 /* über dem Druck */
-    ring(yO, rI, T_R, 96, 1, 0);                                          /* Trinkrand */
-    band(0, 2*Math.PI, 96, yU+BODEN, yO, rI, 0,0, 0,1, 2, -1);            /* Innenwand */
-    scheibe(yU+BODEN, rI, 96, 1, 2, .06);                                 /* Innenboden */
-    scheibe(yU, T_R, 96, -1, 0, 0);                                       /* Standfläche */
+    const LIPPE=WAND/2;              /* gerundeter Trinkrand */
+    const FUSS=.22;                  /* angefaste Bodenkante */
+    const yL=yO-LIPPE, SEG=128;
+
+    band(0, 2*Math.PI, SEG, yU+FUSS, yD0, T_R, 0,0, 0,0, 0, 1);           /* unter dem Druck */
+    band(TH0, TH0+BOGEN, 224, yD0, yD1, T_R, 0,1, 0,1, 1, 1);             /* Druckbereich */
+    band(TH0+BOGEN, TH0+2*Math.PI, 64, yD0, yD1, T_R, 0,0, 0,0, 0, 1);    /* Lücke am Griff */
+    band(0, 2*Math.PI, SEG, yD1, yL, T_R, 0,0, 0,0, 0, 1);                /* über dem Druck */
+    /* Halbrundung von der Außen- über die Oberkante zur Innenwand: der
+       sichtbarste Unterschied zwischen Rohling und gutem Porzellan.      */
+    rundung((T_R+rI)/2, yL, (T_R-rI)/2, 0, Math.PI, 12, SEG, 0);
+    band(0, 2*Math.PI, SEG, yU+BODEN, yL, rI, 0,0, 0,1, 2, -1);           /* Innenwand */
+    scheibe(yU+BODEN, rI, SEG, 1, 2, .06);                                /* Innenboden */
+    /* Fase am Boden statt scharfer Kante – fängt zusätzlich Licht ein. */
+    rundung(T_R-FUSS, yU+FUSS, FUSS, 0, -Math.PI/2, 8, SEG, 0);
+    scheibe(yU, T_R-FUSS, SEG, -1, 0, 0);                                 /* Standfläche */
 
     (function griff(){
-      const RG=G_RING, rg=G_ROHR, PHI=G_PHI, D=G_ABST, HOCH=G_HOCH, NU=64, NV=18;
+      const RG=G_RING, PHI=G_PHI, D=G_ABST, HOCH=G_HOCH, NU=96, NV=28;
+      /* Ovaler Querschnitt: von der Seite breit, von vorn schmal. So sind
+         Tassengriffe wirklich geformt – ein runder Schlauch wirkt billig. */
+      const A0=G_ROHR*1.12, B0=G_ROHR*0.78;
       const basis=V.length/9, ca=Math.cos(TH_GRIFF), sa=Math.sin(TH_GRIFF);
       /* lokal: x nach außen, y nach oben, z tangential – dann an den Griffwinkel gedreht */
       const dreh=(x,y,z)=>[x*sa+z*ca, y, x*ca-z*sa];
       for (let i=0;i<=NU;i++){
-        const ph=-PHI+2*PHI*(i/NU), cp=Math.cos(ph), sp=Math.sin(ph);
+        const t=i/NU, ph=-PHI+2*PHI*t, cp=Math.cos(ph), sp=Math.sin(ph);
+        /* zu den Ansätzen hin dicker – dort wächst der Griff in die Wand */
+        const f = 1 + .30*Math.pow(Math.abs(2*t-1), 3);
+        const A=A0*f, B=B0*f;
         for (let j=0;j<=NV;j++){
-          const ps=j/NV*2*Math.PI, cs=Math.cos(ps), ss=Math.sin(ps), rad=RG+rg*cs;
-          eck(dreh(D+rad*cp, rad*sp+HOCH, rg*ss), dreh(cs*cp, cs*sp, ss), 0, 0, 0);
+          const ps=j/NV*2*Math.PI, cs=Math.cos(ps), ss=Math.sin(ps), rad=RG+A*cs;
+          eck(dreh(D+rad*cp, rad*sp+HOCH, B*ss),
+              dreh(cs/A*cp, cs/A*sp, ss/B), 0, 0, 0);
         }
       }
       for (let i=0;i<NU;i++) for (let j=0;j<NV;j++){
@@ -1603,12 +1633,16 @@
         if (vM > 0.5 && vM < 1.5) basis = texture2D(uTex, vUV).rgb;
         float lam = 0.54 + 0.40*max(dot(N,L1),0.0) + 0.15*max(dot(N,L2),0.0);
         if (vM > 1.5) lam *= mix(0.26, 0.60, vUV.y);
-        vec3 H=normalize(L1+Bl);
-        float spek = pow(max(dot(N,H),0.0), 54.0)*0.42;
+        vec3 H=normalize(L1+Bl), H2=normalize(L2+Bl);
+        float d1=max(dot(N,H),0.0), d2=max(dot(N,H2),0.0);
+        /* Glasur: harte Spitze, darunter ein breiter Schimmer, dazu ein
+           zweiter Glanzpunkt vom Gegenlicht – zusammen liest sich das als
+           glasierte Keramik statt als mattes Plastik.                    */
+        float spek = pow(d1,110.0)*0.55 + pow(d1,20.0)*0.09 + pow(d2,70.0)*0.16;
         float kante = pow(1.0-max(dot(N,Bl),0.0), 3.0);
         vec3 c = basis*lam + spek;
-        c *= mix(1.0, 0.80, kante*0.75);
-        c += kante*0.11;
+        c *= mix(1.0, 0.82, kante*0.70);
+        c += kante*0.13;
         gl_FragColor = vec4(clamp(c,0.0,1.0), 1.0);
       }`;
     const SVS = `
