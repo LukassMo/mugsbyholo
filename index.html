@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>MugsByHolo · Personalisierte Tassen, von mir persönlich gedruckt</title>
-<meta name="description" content="Personalisiere deine eigene Tasse direkt im Browser – 330 ml Keramik, beidseitig im Sublimationsdruck, von mir persönlich gedruckt und versichert per DHL verschickt.">
+<meta name="description" content="Personalisiere deine eigene Tasse direkt im Browser. 330 ml Keramik, beidseitig im Sublimationsdruck, von mir persönlich gedruckt und versichert per DHL verschickt.">
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <meta name="theme-color" content="#FAF7F4">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="MugsByHolo · Personalisierte Tassen">
-<meta property="og:description" content="personalised mugs, made with love – gestalte deine Tasse direkt im Browser.">
+<meta property="og:description" content="Gestalte deine eigene Tasse direkt im Browser. Von mir persönlich gedruckt.">
 <meta property="og:image" content="https://mugsbyholo.de/assets/banner.png">
 <meta property="og:url" content="https://mugsbyholo.de/">
 <meta property="og:locale" content="de_DE">
@@ -91,9 +91,8 @@
     display:flex;align-items:center;justify-content:space-between;gap:14px;
     padding:10px 0;
   }
-  .marke{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
-  .marke svg{width:36px;height:35px;flex:none}
-  .marke span{font-family:var(--hand);font-size:26px;font-weight:700;line-height:1}
+  .marke{display:flex;align-items:center;text-decoration:none;flex:none}
+  .marke span{font-family:var(--hand);font-size:34px;font-weight:700;line-height:1}
   nav.haupt{display:flex;align-items:center;gap:18px;font-size:17px}
   nav.haupt a.link{text-decoration:none;color:var(--ink-weich);transition:color .18s}
   nav.haupt a.link:hover{color:var(--ink)}
@@ -139,16 +138,30 @@
   .knopf-kopf svg{width:17px;height:17px;flex:none}
   .knopf-kopf:hover{background:var(--ink);color:var(--paper)}
 
+  /* Ohne Tassen-Icon traegt der Schriftzug die Marke allein, also darf er
+     auf schmalen Schirmen nicht mehr verschwinden. Stattdessen weicht der
+     CTA auf sein kurzes Wort aus. */
+  .knopf-kopf .kurz{display:none}
   @media(max-width:560px){
-    .marke span{display:none}
+    .marke span{font-size:25px}
     .flagge svg{display:none}
-    .flagge{padding:7px 10px}
-    .knopf-kopf{font-size:16px;padding:9px 14px;gap:6px}
+    .flagge{padding:7px 9px;font-size:13px}
+    .knopf-kopf{font-size:16px;padding:9px 13px;gap:0}
+    .knopf-kopf svg{display:none}
+    .knopf-kopf .lang{display:none}
+    .knopf-kopf .kurz{display:inline}
     nav.haupt{gap:10px}
+  }
+  @media(max-width:380px){
+    .marke span{font-size:21px}
+    .knopf-kopf{font-size:15px;padding:8px 11px}
   }
 
   /* ---------- Held ---------- */
-  .held{position:relative;padding:64px 0 40px;overflow:hidden}
+  /* Kein overflow:hidden: das schnitt die Farbflecken mitten im noch deckenden
+     Bereich ab, in 16:9 als harte Kante sichtbar. Das Ausufern faengt
+     body{overflow-x:hidden} ab. */
+  .held{position:relative;padding:64px 0 40px}
   .held-grid{
     display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;
   }
@@ -158,11 +171,16 @@
     .held-cta{justify-content:center}
   }
 
-  /* Pastellflecken im Hintergrund */
-  .fleck{position:absolute;border-radius:50%;filter:blur(46px);opacity:.55;z-index:0;pointer-events:none}
-  .fleck.a{width:340px;height:340px;background:var(--lav);top:-90px;right:-70px}
-  .fleck.b{width:260px;height:260px;background:var(--mint);bottom:-110px;left:-90px}
-  .fleck.c{width:190px;height:190px;background:var(--blush);top:120px;left:44%;opacity:.35}
+  /* Pastellflecken im Hintergrund.
+     Radialverlauf statt Vollton, damit sie von sich aus nach aussen auslaufen
+     und an keiner Kante hart abreissen. */
+  .fleck{position:absolute;border-radius:50%;filter:blur(30px);z-index:0;pointer-events:none}
+  .fleck.a{width:380px;height:380px;top:-110px;right:-90px;
+    background:radial-gradient(circle closest-side, rgba(239,231,253,.9), rgba(239,231,253,0))}
+  .fleck.b{width:320px;height:320px;bottom:-130px;left:-110px;
+    background:radial-gradient(circle closest-side, rgba(201,233,216,.8), rgba(201,233,216,0))}
+  .fleck.c{width:220px;height:220px;top:110px;left:44%;
+    background:radial-gradient(circle closest-side, rgba(248,198,211,.5), rgba(248,198,211,0))}
 
   .held-text{position:relative;z-index:1}
   .augenbraue{
@@ -172,17 +190,13 @@
   h1{
     font-family:var(--hand);font-weight:700;
     font-size:clamp(44px,7.2vw,78px);line-height:1.02;letter-spacing:-.01em;
-    margin-bottom:8px;
+    margin-bottom:20px;
   }
   h1 .betont{position:relative;white-space:nowrap}
   /* handgemalter Unterstrich */
   h1 .betont::after{
     content:'';position:absolute;left:-2%;right:-2%;bottom:.02em;height:.26em;z-index:-1;
     background:var(--mint);border-radius:999px;transform:rotate(-1.2deg);
-  }
-  .tagline{
-    font-family:var(--hand);font-size:clamp(23px,3vw,29px);color:var(--cyan);
-    margin-bottom:16px;
   }
   .held-text p.lauf{font-size:20px;color:var(--ink-weich);max-width:46ch;margin-bottom:26px}
   @media(max-width:860px){ .held-text p.lauf{margin-inline:auto} }
@@ -287,17 +301,6 @@
 <header class="top">
   <div class="wrap top-inner">
     <a class="marke" href="/" aria-label="MugsByHolo">
-      <svg viewBox="0 0 300 290" aria-hidden="true" focusable="false">
-        <g fill="none" stroke="#5a4a63" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M 70,112 C 70,160 78,205 88,232 C 92,244 108,250 142,250 C 176,250 192,244 196,232 C 206,205 214,160 214,112 C 206,126 180,132 142,132 C 104,132 78,125 70,112 Z" fill="#efe7fd" stroke="none"/>
-          <path d="M 70,112 C 78,98 104,92 142,92 C 180,92 206,99 214,112 C 206,126 180,132 142,132 C 104,132 78,125 70,112 Z" fill="#c9e9d8"/>
-          <path d="M 212,143 C 250,137 269,152 268,172 C 267,193 247,205 209,200"/>
-          <path d="M 70,112 C 70,161 78,205 88,232 C 92,244 109,250 142,250 C 175,250 192,244 196,232 C 206,205 214,160 214,112"/>
-          <circle cx="121" cy="176" r="8" fill="#5a4a63" stroke="none"/>
-          <circle cx="164" cy="176" r="8" fill="#5a4a63" stroke="none"/>
-          <path d="M 132,192 C 137,201 148,202 154,193" stroke-width="8"/>
-        </g>
-      </svg>
       <span>MugsByHolo</span>
     </a>
     <nav class="haupt" aria-label="Hauptnavigation">
@@ -328,7 +331,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 20l4.2-1 10-10a2.6 2.6 0 0 0-3.7-3.7l-10 10L4 20z"/>
         </svg>
-        <span data-i18n="nav_cta">Tasse gestalten</span>
+        <span class="lang" data-i18n="nav_cta">Tasse gestalten</span>
+        <span class="kurz" data-i18n="nav_cta_kurz">Gestalten</span>
       </a>
     </nav>
   </div>
@@ -344,11 +348,10 @@
       <div class="held-text">
         <p class="augenbraue rein d1" data-i18n="held_augenbraue">Von mir persönlich gedruckt</p>
         <h1 class="rein d2" data-i18n-html="held_h1">Personalisiere deine<br><span class="betont">eigene Tasse</span>.</h1>
-        <p class="tagline rein d2" data-i18n="held_tagline">personalised mugs, made with love</p>
         <p class="lauf rein d3" data-i18n="held_text">
-          Ob Geburtstagsgeschenk, Weihnachtsgeschenk, ein anderer Anlass – oder einfach,
-          weil du Lust auf deine eigene Tasse hast. Gestalten kannst du sie direkt hier
-          im Browser, in meinem Tassen-Designer.
+          Ob Geburtstagsgeschenk, Weihnachtsgeschenk oder ein anderer Anlass.
+          Vielleicht hast du auch einfach Lust auf deine eigene Tasse. Gestalten
+          kannst du sie direkt hier im Browser, in meinem Tassen-Designer.
         </p>
         <div class="held-cta rein d4">
           <a class="knopf" href="designer/" data-i18n="held_cta">Tasse gestalten →</a>
@@ -405,7 +408,7 @@
         <div class="schritt">
           <div class="nummer" aria-hidden="true">2</div>
           <h3 data-i18n="sog2_titel">Bestellen</h3>
-          <p data-i18n="sog2_text">Bestell deine Tasse in meinem Etsy-Shop – dort läuft die ganze Kaufabwicklung.</p>
+          <p data-i18n="sog2_text">Bestell deine Tasse in meinem Etsy-Shop. Dort läuft die ganze Kaufabwicklung.</p>
         </div>
         <div class="schritt">
           <div class="nummer" aria-hidden="true">3</div>
@@ -458,7 +461,7 @@
     <div class="wrap">
       <div class="block-kopf">
         <h2 data-i18n="anl_titel">Für jeden Anlass</h2>
-        <p data-i18n="anl_text">Fertige Layouts im Designer – Text und Farben passt du frei an.</p>
+        <p data-i18n="anl_text">Fertige Layouts im Designer. Text und Farben passt du frei an.</p>
       </div>
       <div class="chips">
         <span class="chip" data-i18n="chip1">Geburtstag</span>
@@ -478,7 +481,7 @@
     <div class="wrap">
       <div class="schluss">
         <h2 data-i18n="schluss_titel">Probier’s einfach aus</h2>
-        <p data-i18n="schluss_text">Der Designer läuft komplett in deinem Browser. Nichts wird hochgeladen, nichts gespeichert – du siehst sofort, wie deine Tasse aussieht.</p>
+        <p data-i18n="schluss_text">Der Designer läuft komplett in deinem Browser. Nichts wird hochgeladen, nichts gespeichert. Du siehst sofort, wie deine Tasse aussieht.</p>
         <a class="knopf" href="designer/" data-i18n="schluss_cta">Jetzt Tasse gestalten →</a>
       </div>
     </div>
@@ -507,16 +510,16 @@
   const TEXTE = {
     de:{
       seite_titel:'MugsByHolo · Personalisierte Tassen, von mir persönlich gedruckt',
-      seite_beschreibung:'Personalisiere deine eigene Tasse direkt im Browser – 330 ml Keramik, beidseitig im Sublimationsdruck, von mir persönlich gedruckt und versichert per DHL verschickt.',
+      seite_beschreibung:'Personalisiere deine eigene Tasse direkt im Browser. 330 ml Keramik, beidseitig im Sublimationsdruck, von mir persönlich gedruckt und versichert per DHL verschickt.',
 
       nav_sogehts:'So geht’s',
       nav_tasse:'Die Tasse',
       nav_cta:'Tasse gestalten',
+      nav_cta_kurz:'Gestalten',
 
       held_augenbraue:'Von mir persönlich gedruckt',
       held_h1:'Personalisiere deine<br><span class="betont">eigene Tasse</span>.',
-      held_tagline:'personalised mugs, made with love',
-      held_text:'Ob Geburtstagsgeschenk, Weihnachtsgeschenk, ein anderer Anlass – oder einfach, weil du Lust auf deine eigene Tasse hast. Gestalten kannst du sie direkt hier im Browser, in meinem Tassen-Designer.',
+      held_text:'Ob Geburtstagsgeschenk, Weihnachtsgeschenk oder ein anderer Anlass. Vielleicht hast du auch einfach Lust auf deine eigene Tasse. Gestalten kannst du sie direkt hier im Browser, in meinem Tassen-Designer.',
       held_cta:'Tasse gestalten →',
       held_shop:'Zum Shop',
       held_notiz:'Kauf und Bezahlung laufen über meinen Etsy-Shop',
@@ -527,7 +530,7 @@
       sog1_titel:'Gestalten',
       sog1_text:'Trag Name, Jahrgang und deinen Text im Designer ein, wähl ein Layout und speichere dein Bild.',
       sog2_titel:'Bestellen',
-      sog2_text:'Bestell deine Tasse in meinem Etsy-Shop – dort läuft die ganze Kaufabwicklung.',
+      sog2_text:'Bestell deine Tasse in meinem Etsy-Shop. Dort läuft die ganze Kaufabwicklung.',
       sog3_titel:'Zuschicken',
       sog3_text:'Schick mir dein Bild zur Bestellung. Ich drucke deine Tasse und verschicke sie versichert per DHL.',
 
@@ -540,12 +543,12 @@
       det6_titel:'Mit Liebe gemacht',   det6_text:'Jede Tasse drucke ich einzeln, von Hand',
 
       anl_titel:'Für jeden Anlass',
-      anl_text:'Fertige Layouts im Designer – Text und Farben passt du frei an.',
+      anl_text:'Fertige Layouts im Designer. Text und Farben passt du frei an.',
       chip1:'Geburtstag', chip2:'Weihnachten', chip3:'Jubiläum',    chip4:'Muttertag',
       chip5:'Vatertag',   chip6:'Meilensteine', chip7:'Danke sagen', chip8:'Einfach so',
 
       schluss_titel:'Probier’s einfach aus',
-      schluss_text:'Der Designer läuft komplett in deinem Browser. Nichts wird hochgeladen, nichts gespeichert – du siehst sofort, wie deine Tasse aussieht.',
+      schluss_text:'Der Designer läuft komplett in deinem Browser. Nichts wird hochgeladen, nichts gespeichert. Du siehst sofort, wie deine Tasse aussieht.',
       schluss_cta:'Jetzt Tasse gestalten →',
 
       fuss_impressum:'Impressum',
@@ -554,16 +557,16 @@
     },
     en:{
       seite_titel:'MugsByHolo · Personalised mugs, printed by me',
-      seite_beschreibung:'Personalise your very own mug right in your browser – 330 ml ceramic, printed on both sides by sublimation, made by me and shipped insured with DHL.',
+      seite_beschreibung:'Personalise your very own mug right in your browser. 330 ml ceramic, printed on both sides by sublimation, made by me and shipped insured with DHL.',
 
       nav_sogehts:'How it works',
       nav_tasse:'The mug',
       nav_cta:'Design a mug',
+      nav_cta_kurz:'Design',
 
       held_augenbraue:'Printed personally by me',
       held_h1:'Personalise your<br><span class="betont">very own mug</span>.',
-      held_tagline:'personalised mugs, made with love',
-      held_text:'A birthday present, a Christmas gift, any other occasion – or simply because you fancy a mug of your own. You design it right here in your browser, in my mug designer.',
+      held_text:'A birthday present, a Christmas gift or any other occasion. Maybe you simply fancy a mug of your own. You design it right here in your browser, in my mug designer.',
       held_cta:'Design your mug →',
       held_shop:'Visit the shop',
       held_notiz:'Checkout and payment happen in my Etsy shop',
@@ -574,7 +577,7 @@
       sog1_titel:'Design',
       sog1_text:'Enter a name, a year and your own words in the designer, pick a layout and save your image.',
       sog2_titel:'Order',
-      sog2_text:'Order your mug in my Etsy shop – the whole checkout happens there.',
+      sog2_text:'Order your mug in my Etsy shop. The whole checkout happens there.',
       sog3_titel:'Delivered',
       sog3_text:'Send me your image with the order. I print your mug and ship it insured with DHL.',
 
@@ -582,17 +585,17 @@
       det1_titel:'330 ml ceramic',       det1_text:'Glossy white, classic shape',
       det2_titel:'Printed on both sides',det2_text:'Front and back are yours to design',
       det3_titel:'Sublimation print',    det3_text:'Vibrant colours, baked into the coating',
-      det4_titel:'Built to last',        det4_text:'Never peels – dishwasher and microwave safe',
+      det4_titel:'Built to last',        det4_text:'Never peels, dishwasher and microwave safe',
       det5_titel:'1–4 working days',     det5_text:'Insured DHL delivery with tracking',
       det6_titel:'Made with love',       det6_text:'Every mug is printed by me, one at a time',
 
       anl_titel:'For every occasion',
-      anl_text:'Ready-made layouts in the designer – the text and colours are up to you.',
+      anl_text:'Ready-made layouts in the designer. The text and colours are up to you.',
       chip1:'Birthday',      chip2:'Christmas',  chip3:'Anniversary', chip4:'Mother’s Day',
       chip5:'Father’s Day',  chip6:'Milestones', chip7:'Saying thanks', chip8:'Just because',
 
       schluss_titel:'Just give it a try',
-      schluss_text:'The designer runs entirely in your browser. Nothing is uploaded, nothing is stored – you see straight away how your mug will look.',
+      schluss_text:'The designer runs entirely in your browser. Nothing is uploaded, nothing is stored. You see straight away how your mug will look.',
       schluss_cta:'Design your mug now →',
 
       fuss_impressum:'Legal notice',
