@@ -1578,14 +1578,14 @@
       const RG=G_RING, PHI=G_PHI, D=G_ABST, HOCH=G_HOCH, NU=96, NV=28;
       /* Ovaler Querschnitt: von der Seite breit, von vorn schmal. So sind
          Tassengriffe wirklich geformt – ein runder Schlauch wirkt billig. */
-      const A0=G_ROHR*1.12, B0=G_ROHR*0.78;
+      const A0=G_ROHR*0.86, B0=G_ROHR*0.78;
       const basis=V.length/9, ca=Math.cos(TH_GRIFF), sa=Math.sin(TH_GRIFF);
       /* lokal: x nach außen, y nach oben, z tangential – dann an den Griffwinkel gedreht */
       const dreh=(x,y,z)=>[x*sa+z*ca, y, x*ca-z*sa];
       for (let i=0;i<=NU;i++){
         const t=i/NU, ph=-PHI+2*PHI*t, cp=Math.cos(ph), sp=Math.sin(ph);
         /* zu den Ansätzen hin dicker – dort wächst der Griff in die Wand */
-        const f = 1 + .30*Math.pow(Math.abs(2*t-1), 3);
+        const f = 1 + .18*Math.pow(Math.abs(2*t-1), 3);
         const A=A0*f, B=B0*f;
         for (let j=0;j<=NV;j++){
           const ps=j/NV*2*Math.PI, cs=Math.cos(ps), ss=Math.sin(ps), rad=RG+A*cs;
