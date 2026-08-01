@@ -47,6 +47,24 @@ To ship a new version, overwrite `designer/index.html`, then re-apply these loca
 5. An empty "Große Zeile" must stay empty — the original file falls back to the birth year
    (`if (!sV.hero …) sV.hero=String(d.jahr)` in `aktualisiere()`, twice: front and back).
    The `level` layout's corner brackets are likewise skipped when the hero line is empty.
+6. The 3D preview. Four pieces: the `#vorschau3d` / `.blatt.dreid` / `.d3-schalter` CSS block,
+   the second `<canvas>` plus the `3D` chip in the preview markup, the `Mug3D` module and
+   `setze3D()` in the script, and the two hooks that call them (end of `aktualisiere()`,
+   and `setzeAnsicht()` — whose chip selector must stay `#seiten .chip[data-v]`, or the
+   3D chip gets cleared along with the side chips).
+
+### How the 3D preview works
+
+`druck` — the offscreen 20 × 9 cm print canvas — is already the unwrapped outer surface of the
+mug, so it is used directly as a cylinder texture. Hand-written WebGL, no library, which is what
+keeps the file self-contained. Worth knowing if you ever change the print size:
+
+- A 325 ml mug is Ø 8.2 cm ≈ 25.8 cm around, so a 20 cm print wraps only ~279°. The remaining
+  ~81° is the gap the handle sits in — the geometry models this, and it is why the back design
+  is ~140° from the front rather than 180°. `B_CM` feeds this directly.
+- Steps 1 and 2 stay flat (that is where the layout is judged); step 3 switches to 3D on its own
+  and slowly turns. Once the customer touches the `3D` chip, their choice wins for the session.
+- Without WebGL the chip never appears and everything behaves exactly as before.
 
 ## Deploying
 
