@@ -723,7 +723,7 @@
   /* ================= Zustand ================= */
   const neutralT = () => ({zoom:1, rot:0, dx:0, dy:0});
   const Z = {
-    layout:'legenden',
+    layout:'monogramm',
     tinte:'#1a1a1a',
     elemFarbe:'#1a1a1a',
     elemIkon:'herz',
@@ -764,9 +764,11 @@
   /* Kategorie ist sprachunabhängig, die Texte kommen aus PRESET_TEXTE.
      Wichtig: nm nur dort setzen, wo es das Layout auch zeichnet – die
      Namenszeile wird über p.nm!==undefined ein- und ausgeblendet.        */
+  /* Reihenfolge = Reihenfolge der Chips im Designer. Monogramm steht vorn,
+     weil es die Vorauswahl ist – die aktive Kachel soll die erste sein.    */
   const PRESET_KAT = {
-    legenden:'text', level:'text', vintage:'text', limitiert:'text', meilenstein:'text',
-    monogramm:'text', skript:'text', krone:'text', fotokreis:'foto', fotobogen:'foto',
+    monogramm:'text', legenden:'text', level:'text', vintage:'text', limitiert:'text',
+    meilenstein:'text', skript:'text', krone:'text', fotokreis:'foto', fotobogen:'foto',
     fotoherz:'foto', polaroid:'foto', fotorahmen:'foto', fotokranz:'foto', freitext:'text'
   };
   const PRESET_TEXTE = {
