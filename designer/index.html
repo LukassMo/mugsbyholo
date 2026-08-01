@@ -628,8 +628,12 @@
      9 cm hoch. Die Mitte jedes Motivs sitzt RAND_MITTE_CM vom jeweiligen
      Blattrand entfernt, jedes Motiv ist ZONE_B_CM breit. Beide Motive liegen
      damit spiegelbildlich zur Blattmitte und haben auf der Tasse denselben
-     Abstand zum Griff. Mitte-zu-Mitte sind es 23,3 - 2*5,7 = 11,9 cm.       */
-  const RAND_MITTE_CM = 5.7, ZONE_B_CM = 8.6;
+     Abstand zum Griff. Mitte-zu-Mitte sind es 23,3 - 2*5,2 = 12,9 cm.
+     Die Blattkante ist zugleich die Kante der Griff-Lücke: RAND_MITTE_CM
+     minus der halben Zonenbreite ist also der Abstand zum Griff, hier
+     5,2 - 4,3 = 0,9 cm. Kleiner rückt näher an den Griff, sollte aber
+     Luft für den Druckversatz lassen.                                      */
+  const RAND_MITTE_CM = 5.2, ZONE_B_CM = 8.6;
 
   /* ================= Sprachen =================
      Neue Texte immer in BEIDE Tabellen eintragen. Fehlt ein Schlüssel in en,
