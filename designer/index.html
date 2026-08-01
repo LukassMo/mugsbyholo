@@ -554,7 +554,14 @@
 <script>
 (function(){
   const $ = id => document.getElementById(id);
-  const DPI = 300, JETZT = 2026, B_CM = 20, H_CM = 9;
+  const DPI = 300, JETZT = 2026, B_CM = 23.3, H_CM = 9;
+
+  /* Der Druckbogen ist das zugeschnittene Sublimationspapier: 23,3 cm breit,
+     9 cm hoch. Die Mitte jedes Motivs sitzt RAND_MITTE_CM vom jeweiligen
+     Blattrand entfernt, jedes Motiv ist ZONE_B_CM breit. Beide Motive liegen
+     damit spiegelbildlich zur Blattmitte und haben auf der Tasse denselben
+     Abstand zum Griff. Mitte-zu-Mitte sind es 23,3 - 2*5,7 = 11,9 cm.       */
+  const RAND_MITTE_CM = 5.7, ZONE_B_CM = 8.6;
 
   /* ================= Sprachen =================
      Neue Texte immer in BEIDE Tabellen eintragen. Fehlt ein Schlüssel in en,
@@ -1326,23 +1333,19 @@
 
   /* ---------- Zwei-Foto-Layouts ---------- */
   /* ================= Rendern ================= */
-  /* Anteil des Bogens, der zwischen den beiden Motiven frei bleibt – das ist
-     die Tassenseite gegenüber dem Griff. Kleiner = die Motive rücken enger
-     zusammen und weiter an den Griff heran.                                */
-  const LUECKE_ANTEIL = 0.0925;
-
   /* Beide Druckflächen sind gleich breit und liegen spiegelbildlich zur
-     Bogenmitte. Die Bogenmitte sitzt dem Griff genau gegenüber, also hat
+     Blattmitte. Die Blattmitte sitzt dem Griff genau gegenüber, also hat
      damit jedes der beiden Motive denselben Abstand zum Griff – im Druck
      wie in der 3D-Vorschau.
-     Einmal berechnet, von Druck und Vorschau-Ausschnitt gemeinsam benutzt,
-     sonst zeigt die Vorschau einen anderen Ausschnitt als das Druckbild.   */
+     Gerechnet wird in Anteilen von W statt in px, damit dieselbe Funktion
+     für den Druckbogen und für kleinere Vorschau-Puffer stimmt. Einmal
+     berechnet, von Druck und Vorschau-Ausschnitt gemeinsam benutzt, sonst
+     zeigt die Vorschau einen anderen Ausschnitt als das Druckbild.         */
   function seitenLayout(W){
-    const RAND   = W*0.05;
-    const LUECKE = W*LUECKE_ANTEIL;
-    const zw     = (W - 2*RAND - LUECKE)/2;
-    const links  = RAND;
-    const rechts = W - RAND - zw;     /* exaktes Spiegelbild von links */
+    const zw     = W * (ZONE_B_CM/B_CM);
+    const mitte  = W * (RAND_MITTE_CM/B_CM);
+    const links  = mitte - zw/2;
+    const rechts = W - mitte - zw/2;  /* exaktes Spiegelbild von links */
     return (Z.textSeite==='links')
       ? {textX:links,  elemX:rechts, zwT:zw, zwE:zw}
       : {textX:rechts, elemX:links,  zwT:zw, zwE:zw};
@@ -1489,12 +1492,16 @@
     /* ---- Maße einer Standardtasse (325 ml) in cm ---- */
     const T_H=9.5, T_R=4.1, WAND=.34, BODEN=.45;
     const UMFANG = 2*Math.PI*T_R;                       /* 25,8 cm */
-    /* 20 cm Druck reichen nicht ganz herum (~279°). Die Lücke ist der Griff. */
+    /* 23,3 cm Druck reichen nicht ganz herum (~326°). Die Lücke ist der Griff. */
     const BOGEN = Math.min(2*Math.PI*.93, 2*Math.PI*B_CM/UMFANG);
-    const TH0   = -.25*BOGEN;        /* so schaut die Vorderseite (u=0,25) bei rot=0 nach vorn */
+    /* Wo die Motivmitten auf dem Bogen liegen (0 = linke Blattkante, 1 = rechte).
+       Aus denselben Konstanten wie der Druck, sonst zeigt die 3D-Vorschau die
+       Motive woanders als das Druckbild sie hinlegt.                        */
+    const U_VORNE = RAND_MITTE_CM/B_CM;          /* 0,245 */
+    const TH0   = -U_VORNE*BOGEN;    /* so schaut die Vorderseite bei rot=0 nach vorn */
     const TH_GRIFF = TH0 + BOGEN + (2*Math.PI-BOGEN)/2;
-    /* Die Rückseite liegt nur ~140° weiter, nicht 180° – genau wie im Druck. */
-    const WINKEL = {vorne:0, hinten:.5*BOGEN};
+    /* Die Rückseite liegt ~166° weiter, nicht 180° – genau wie im Druck. */
+    const WINKEL = {vorne:0, hinten:(1-2*U_VORNE)*BOGEN};
     /* Griff */
     const G_RING=2.18, G_ROHR=.56, G_PHI=1.83, G_ABST=4.30, G_HOCH=.6;
     const GRIFF_AUS = G_ABST + G_RING + G_ROHR*1.12;  /* steht ~7 cm von der Achse ab */
@@ -1910,15 +1917,60 @@
     const s=t=>String(t).toLowerCase().replace(/[^a-z0-9äöüß]+/g,'-');
     return `${T('dateiname')}-${s(d.name)}-${d.jahr}.png`;
   }
+  /* Ein PNG kennt seine Auflösung nur über den pHYs-Chunk. Canvas schreibt
+     keinen – die Datei gilt dann als 96 dpi und käme über 70 cm breit aus dem
+     Drucker. Der Chunk wird deshalb nachträglich direkt hinter IHDR gesetzt,
+     dann stimmen 23,3 x 9 cm in Photoshop, GIMP und im Druckdialog ohne
+     Nachskalieren.                                                          */
+  const crcTab = (()=>{
+    const t=new Uint32Array(256);
+    for (let n=0;n<256;n++){
+      let c=n;
+      for (let k=0;k<8;k++) c = (c&1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1);
+      t[n]=c>>>0;
+    }
+    return t;
+  })();
+  function crc32(buf){
+    let c=0xFFFFFFFF;
+    for (let i=0;i<buf.length;i++) c = crcTab[(c ^ buf[i]) & 0xFF] ^ (c>>>8);
+    return (c ^ 0xFFFFFFFF)>>>0;
+  }
+  function mitAufloesung(bytes, dpi){
+    const ppm   = Math.round(dpi/0.0254);        /* Pixel pro Meter, 300 dpi = 11811 */
+    const chunk = new Uint8Array(21);            /* 4 Länge + 4 Typ + 9 Daten + 4 CRC */
+    const dv    = new DataView(chunk.buffer);
+    dv.setUint32(0, 9);
+    chunk.set([0x70,0x48,0x59,0x73], 4);         /* "pHYs" */
+    dv.setUint32(8, ppm); dv.setUint32(12, ppm);
+    chunk[16] = 1;                               /* Einheit: Meter */
+    dv.setUint32(17, crc32(chunk.subarray(4,17)));
+    /* IHDR ist immer der erste Chunk und immer gleich lang:
+       8 Byte Signatur + 4 Länge + 4 Typ + 13 Daten + 4 CRC = 33 */
+    const schnitt = 33;
+    const raus = new Uint8Array(bytes.length + chunk.length);
+    raus.set(bytes.subarray(0, schnitt), 0);
+    raus.set(chunk, schnitt);
+    raus.set(bytes.subarray(schnitt), schnitt + chunk.length);
+    return raus;
+  }
+
   function exportiere(d){
     return new Promise(res=>{
-      /* Reine Druckdatei: 20 x 9 cm bei 300 dpi, ohne Zusätze */
+      /* Reine Druckdatei: 23,3 x 9 cm bei 300 dpi, ohne Zusätze */
       const ex=document.createElement('canvas');
       ex.width=druck.width; ex.height=druck.height;
       rendere(ex.getContext('2d'), ex.width, ex.height, d);
-      ex.toBlob(blob=>{
+      ex.toBlob(async blob=>{
+        let ausgabe = blob;
+        try{
+          const roh = new Uint8Array(await blob.arrayBuffer());
+          ausgabe = new Blob([mitAufloesung(roh, DPI)], {type:'image/png'});
+        }catch(e){
+          /* Ohne dpi-Angabe ist das Bild noch korrekt, nur nicht maßstabsgetreu */
+        }
         const a=document.createElement('a');
-        a.href=URL.createObjectURL(blob);
+        a.href=URL.createObjectURL(ausgabe);
         a.download=dateiname(d);
         a.click();
         setTimeout(()=>URL.revokeObjectURL(a.href),4000);
