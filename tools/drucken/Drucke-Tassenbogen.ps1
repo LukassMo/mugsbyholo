@@ -29,7 +29,10 @@ param(
   [double] $VersatzYmm = 0,
   [int]    $Kopien     = 1,
   [switch] $Liste,
-  [string] $ProbePdf
+  [string] $ProbePdf,
+  [string] $Profil      = 'C:\Windows\System32\spool\drivers\color\Epson SC-F100-1 (Rigid).icc',
+  [string] $QuellProfil = 'C:\Windows\System32\spool\drivers\color\sRGB Color Space Profile.icm',
+  [switch] $OhneProfil
 )
 
 $ErrorActionPreference = 'Stop'
@@ -40,6 +43,82 @@ Add-Type -AssemblyName System.Windows.Forms
 $MM_JE_EINHEIT = 0.254
 
 function Schreib($text, $farbe = 'Gray') { Write-Host $text -ForegroundColor $farbe }
+
+# ---------- Farbumrechnung ueber das ICC-Profil ----------
+# Windows' Farbmodul mscms rechnet von sRGB in den Farbraum des Druckers, mit
+# perzeptivem Rendering. Das ist derselbe Weg, den Illustrator mit
+# "Farben von Illustrator verwalten lassen" gegangen ist. Wichtig: danach
+# stehen im Bild Geraetewerte, keine sRGB-Werte mehr. Der Treiber darf also
+# nicht noch einmal korrigieren, sonst wird zweimal gerechnet.
+if (-not ('Icm' -as [type])) {
+  Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+public static class Icm {
+  [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
+  public struct PROFILE { public uint dwType; public IntPtr pProfileData; public uint cbDataSize; }
+  [DllImport("mscms.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+  public static extern IntPtr OpenColorProfileW(ref PROFILE p, uint access, uint share, uint creation);
+  [DllImport("mscms.dll", SetLastError=true)] public static extern bool CloseColorProfile(IntPtr h);
+  [DllImport("mscms.dll", SetLastError=true)]
+  public static extern IntPtr CreateMultiProfileTransform(IntPtr[] profiles, uint nProfiles,
+      uint[] intents, uint nIntents, uint flags, uint cmm);
+  [DllImport("mscms.dll", SetLastError=true)] public static extern bool DeleteColorTransform(IntPtr h);
+  [DllImport("mscms.dll", SetLastError=true)]
+  public static extern bool TranslateBitmapBits(IntPtr h, IntPtr src, uint srcFmt,
+      uint width, uint height, uint srcStride, IntPtr dst, uint dstFmt, uint dstStride,
+      IntPtr cb, IntPtr data);
+  public const uint PROFILE_FILENAME = 1, PROFILE_READ = 1, FILE_SHARE_READ = 1, OPEN_EXISTING = 3;
+  public const uint BM_BGRTRIPLETS = 0x0004, INTENT_PERCEPTUAL = 0, BEST_MODE = 0x0003;
+  public static IntPtr Oeffne(string pfad) {
+    IntPtr name = Marshal.StringToHGlobalUni(pfad);
+    PROFILE p = new PROFILE();
+    p.dwType = PROFILE_FILENAME; p.pProfileData = name;
+    p.cbDataSize = (uint)((pfad.Length + 1) * 2);
+    IntPtr h = OpenColorProfileW(ref p, PROFILE_READ, FILE_SHARE_READ, OPEN_EXISTING);
+    Marshal.FreeHGlobal(name);
+    return h;
+  }
+}
+'@
+}
+
+function Wandle-Farben($bild, $quellProfil, $zielProfil) {
+  # mscms erwartet 24 Bit BGR am Stueck, deshalb erst umkopieren.
+  $flach = New-Object System.Drawing.Bitmap($bild.Width, $bild.Height,
+             [System.Drawing.Imaging.PixelFormat]::Format24bppRgb)
+  $flach.SetResolution($bild.HorizontalResolution, $bild.VerticalResolution)
+  $gg = [System.Drawing.Graphics]::FromImage($flach)
+  $gg.DrawImage($bild, 0, 0, $bild.Width, $bild.Height)
+  $gg.Dispose()
+
+  $hQ = [Icm]::Oeffne($quellProfil)
+  $hZ = [Icm]::Oeffne($zielProfil)
+  if ($hQ -eq [IntPtr]::Zero -or $hZ -eq [IntPtr]::Zero) {
+    if ($hQ -ne [IntPtr]::Zero) { [void][Icm]::CloseColorProfile($hQ) }
+    if ($hZ -ne [IntPtr]::Zero) { [void][Icm]::CloseColorProfile($hZ) }
+    throw 'Profil liess sich nicht oeffnen.'
+  }
+  $hT = [Icm]::CreateMultiProfileTransform([IntPtr[]]@($hQ,$hZ), 2,
+          [uint32[]]@([Icm]::INTENT_PERCEPTUAL), 1, [Icm]::BEST_MODE, 0)
+  if ($hT -eq [IntPtr]::Zero) {
+    [void][Icm]::CloseColorProfile($hQ); [void][Icm]::CloseColorProfile($hZ)
+    throw "Farbtransformation fehlgeschlagen (Fehler $([Runtime.InteropServices.Marshal]::GetLastWin32Error()))."
+  }
+
+  $r = New-Object System.Drawing.Rectangle(0, 0, $flach.Width, $flach.Height)
+  $d = $flach.LockBits($r, [System.Drawing.Imaging.ImageLockMode]::ReadWrite, $flach.PixelFormat)
+  $ok = [Icm]::TranslateBitmapBits($hT, $d.Scan0, [Icm]::BM_BGRTRIPLETS,
+          [uint32]$flach.Width, [uint32]$flach.Height, [uint32]$d.Stride,
+          $d.Scan0, [Icm]::BM_BGRTRIPLETS, [uint32]$d.Stride, [IntPtr]::Zero, [IntPtr]::Zero)
+  $flach.UnlockBits($d)
+
+  [void][Icm]::DeleteColorTransform($hT)
+  [void][Icm]::CloseColorProfile($hQ)
+  [void][Icm]::CloseColorProfile($hZ)
+  if (-not $ok) { throw 'Umrechnung der Bildpunkte fehlgeschlagen.' }
+  return $flach
+}
 
 # ---------- Nur nachsehen, was der Drucker kann ----------
 if ($Liste) {
@@ -110,6 +189,29 @@ if (-not $NichtSpiegeln) {
   Schreib "Gespiegelt: ja (Sublimation)"
 } else {
   Schreib "Gespiegelt: nein (-NichtSpiegeln gesetzt)"
+}
+
+# ---------- Farben ins Druckerprofil rechnen ----------
+if ($OhneProfil) {
+  Schreib "Farbprofil: uebersprungen (-OhneProfil), der Treiber rechnet." 'Yellow'
+} elseif (-not (Test-Path -LiteralPath $Profil)) {
+  Schreib "Farbprofil: '$Profil' nicht gefunden, der Treiber rechnet." 'Yellow'
+} elseif (-not (Test-Path -LiteralPath $QuellProfil)) {
+  Schreib "Farbprofil: sRGB-Profil nicht gefunden, der Treiber rechnet." 'Yellow'
+} else {
+  try {
+    $vorher  = $quelle.GetPixel([int]($quelle.Width/2), [int]($quelle.Height/2))
+    $gewandelt = Wandle-Farben $quelle $QuellProfil $Profil
+    $quelle.Dispose()
+    $quelle = $gewandelt
+    $nachher = $quelle.GetPixel([int]($quelle.Width/2), [int]($quelle.Height/2))
+    Schreib ("Farbprofil: {0}" -f (Split-Path $Profil -Leaf))
+    Schreib ("            perzeptiv, Probepunkt {0},{1},{2} -> {3},{4},{5}" -f `
+             $vorher.R, $vorher.G, $vorher.B, $nachher.R, $nachher.G, $nachher.B)
+    Schreib "            Im Treiber muss die Farbanpassung AUS sein, sonst wird zweimal gerechnet." 'Yellow'
+  } catch {
+    Schreib "Farbprofil: $($_.Exception.Message) Es rechnet der Treiber." 'Yellow'
+  }
 }
 
 # ---------- Druckauftrag aufsetzen ----------
