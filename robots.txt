@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
+# Einstieg fuer TikTok: gehoert in die Bio, nicht in die Suchergebnisse.
+Disallow: /tiktok/
+
 Sitemap: https://mugsbyholo.de/sitemap.xml
