@@ -24,7 +24,7 @@ param(
   [double] $BreiteMm   = 233,
   [double] $HoeheMm    = 90,
   [switch] $NichtSpiegeln,
-  [switch] $Drehen90,
+  [switch] $NichtDrehen,
   [double] $VersatzXmm = 0,
   [double] $VersatzYmm = 0,
   [int]    $Kopien     = 1,
@@ -76,10 +76,10 @@ if ($Bild) {
 }
 
 # ---------- Quer einlegen ----------
-# Ein A4-Sublimationsdrucker nimmt nur rund 210 mm Breite. Der Bogen ist aber
-# 233 mm breit, muss also mit der kurzen Kante voran laufen: das Blatt ist dann
-# 90 mm breit und 233 mm lang, und das Motiv wird dazu um 90 Grad gedreht.
-if ($Drehen90) {
+# Der Drucker nimmt keine 233 mm Breite ein, der Bogen laeuft mit der kurzen
+# Kante voran: Blatt 90 mm breit, 233 mm lang, Motiv um 90 Grad gedreht.
+# Das ist der Normalfall, deshalb ohne Schalter. -NichtDrehen schaltet es ab.
+if (-not $NichtDrehen) {
   $quelle.RotateFlip([System.Drawing.RotateFlipType]::Rotate90FlipNone)
   $tausch    = $BreiteMm
   $BreiteMm  = $HoeheMm
