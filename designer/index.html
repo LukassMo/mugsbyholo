@@ -32,7 +32,7 @@
   }
   header h1{font-size:16px;font-weight:700;color:var(--brand)}
   header .spec{font-size:11px;color:var(--grau);text-decoration:none;white-space:nowrap}
-  header a.spec:hover{color:#F1641E}
+  header a.spec:hover{color:var(--shop)}
   header .kopf-rechts{display:flex;align-items:center;gap:14px}
 
   /* ---------- Sprachwahl ---------- */
@@ -309,36 +309,48 @@
     display:block;width:100%;padding:13px;border:1.5px solid var(--brand);border-radius:8px;
     background:transparent;color:var(--brand);font-size:13.5px;font-weight:700;cursor:pointer;
   }
-  /* ---------- Shop-Karte (Etsy) ---------- */
+  /* ---------- Shop-Karte ----------
+     Die Farben stehen als Variablen da, damit derselbe Designer je nach Laden
+     anders aussehen kann. Die Vorgabewerte sind Etsy - so stimmt die Karte
+     auch dann, wenn das Skript gar nicht laeuft. Gesetzt werden sie unten
+     beim Verkaufskanal. */
+  :root{
+    --shop:        #F1641E;
+    --shop-dunkel: #d85513;
+    --shop-hell:   #fff7f1;
+    --shop-rand:   #ecdbcf;
+    --shop-puls:   241,100,30;
+    --shop-schrift: Georgia,"Times New Roman",serif;
+  }
   .shop-karte{
     margin-top:20px;padding:16px;border-radius:12px;
-    border:1px solid #ecdbcf;
-    background:linear-gradient(165deg,#fff7f1 0%,#fffdfb 65%);
+    border:1px solid var(--shop-rand);
+    background:linear-gradient(165deg,var(--shop-hell) 0%,#fffdfb 65%);
     box-shadow:0 1px 2px rgba(20,20,18,.05);
   }
   .shop-kopf{display:flex;gap:12px;align-items:flex-start;margin-bottom:13px}
   .shop-mark{
     flex:0 0 auto;width:38px;height:38px;border-radius:11px;
-    background:#F1641E;color:#fff;
+    background:var(--shop);color:#fff;
     display:flex;align-items:center;justify-content:center;
-    font-family:Georgia,"Times New Roman",serif;font-size:21px;font-weight:700;line-height:1;
+    font-family:var(--shop-schrift);font-size:21px;font-weight:700;line-height:1;
   }
   .shop-titel{font-size:14.5px;font-weight:700;color:var(--ink);margin-bottom:3px}
   .shop-text{font-size:12.5px;line-height:1.5;color:var(--grau)}
   .shop-knopf{
     display:block;width:100%;padding:14px;border-radius:8px;
-    background:#F1641E;color:#fff;text-decoration:none;text-align:center;
+    background:var(--shop);color:#fff;text-decoration:none;text-align:center;
     font-size:14.5px;font-weight:700;
     transition:background .15s ease,transform .15s ease;
   }
-  .shop-knopf:hover{background:#d85513}
+  .shop-knopf:hover{background:var(--shop-dunkel)}
   .shop-knopf:active{transform:translateY(1px)}
   .shop-fuss{font-size:11.5px;color:var(--grau);line-height:1.45;text-align:center;margin-top:10px}
   @keyframes shopPuls{
-    0%{box-shadow:0 0 0 0 rgba(241,100,30,.42)}
-    100%{box-shadow:0 0 0 15px rgba(241,100,30,0)}
+    0%{box-shadow:0 0 0 0 rgba(var(--shop-puls),.42)}
+    100%{box-shadow:0 0 0 15px rgba(var(--shop-puls),0)}
   }
-  .shop-karte.leuchtet{border-color:#F1641E}
+  .shop-karte.leuchtet{border-color:var(--shop)}
   .shop-karte.leuchtet .shop-knopf{animation:shopPuls 1.5s ease-out 2}
   @media(prefers-reduced-motion:reduce){
     .shop-karte.leuchtet .shop-knopf{animation:none}
@@ -858,10 +870,21 @@
     /* Etsy braucht keine Texte: die stehen bereits oben in TEXTE und sind die
        Vorgabe. Nur abweichende Laeden bringen eigene Formulierungen mit. */
     etsy: {
-      link: 'https://www.etsy.com/de/listing/4548291128/personalisierte-geburtstagstasse-mit'
+      link: 'https://www.etsy.com/de/listing/4548291128/personalisierte-geburtstagstasse-mit',
+      zeichen: 'E',
+      schrift: 'Georgia,"Times New Roman",serif',
+      farben: { '--shop':'#F1641E', '--shop-dunkel':'#d85513', '--shop-hell':'#fff7f1',
+                '--shop-rand':'#ecdbcf', '--shop-puls':'241,100,30' }
     },
     tiktok: {
       link: 'https://www.tiktok.com/@holoderlolo',
+      /* Bewusst eine Note auf Schwarz statt des echten TikTok-Logos: erkennbar,
+         ohne fremdes Markenzeichen nachzubauen. Knopf im TikTok-Rot. */
+      zeichen: '♪',
+      schrift: 'system-ui,"Segoe UI Symbol",sans-serif',
+      farben: { '--shop':'#FE2C55', '--shop-dunkel':'#e0244a', '--shop-hell':'#fff5f7',
+                '--shop-rand':'#f3d7de', '--shop-puls':'254,44,85' },
+      markeHintergrund: '#000000',
       de: {
         kopf_etsy:      'Kauf & Zahlung laufen über TikTok →',
         s3_text:        'Speichere dein Bild und schick es mir als Nachricht zu deiner TikTok-Bestellung.',
@@ -897,6 +920,22 @@
     const a = document.getElementById(id);
     if (a) a.href = LAEDEN[LADEN].link;
   });
+
+  /* Auch das Aussehen der Shop-Karte gehoert zum Laden - sonst steht auf dem
+     TikTok-Designer ein oranges Etsy-E. */
+  (function ladenAussehen(){
+    const l = LAEDEN[LADEN];
+    if (l.farben) {
+      Object.entries(l.farben).forEach(([k,v]) => document.documentElement.style.setProperty(k, v));
+    }
+    if (l.schrift) document.documentElement.style.setProperty('--shop-schrift', l.schrift);
+    const mark = document.querySelector('.shop-mark');
+    if (mark) {
+      if (l.zeichen) mark.textContent = l.zeichen;
+      /* TikTok tritt schwarz auf, das Rot bleibt dem Knopf vorbehalten */
+      if (l.markeHintergrund) mark.style.background = l.markeHintergrund;
+    }
+  })();
 
   let SPRACHE = 'de';
   const T = k => {
