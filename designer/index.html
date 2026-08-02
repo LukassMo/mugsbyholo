@@ -474,10 +474,23 @@
         <label for="freitext" data-i18n="lbl_freitext">Dein Text – jede Zeile kommt so auf die Tasse</label>
         <textarea id="freitext" rows="4" maxlength="240"
           style="width:100%;padding:9px 11px;border:1px solid var(--linie);border-radius:6px;background:var(--karte);font-size:16px;font-family:inherit;color:var(--ink)"></textarea>
-        <div class="chips" id="ftgroesse" style="margin-top:8px">
+        <span class="gruppenlabel" style="margin-top:10px" data-i18n="grp_groesse">Größe</span>
+        <div class="chips" id="ftgroesse">
           <button class="chip" data-g="s" aria-pressed="false" data-i18n="g_klein">Klein</button>
           <button class="chip" data-g="m" aria-pressed="true" data-i18n="g_mittel">Mittel</button>
           <button class="chip" data-g="l" aria-pressed="false" data-i18n="g_gross">Groß</button>
+        </div>
+        <span class="gruppenlabel" style="margin-top:10px" data-i18n="grp_ausricht">Ausrichtung</span>
+        <div class="chips" id="ftausricht">
+          <button class="chip" data-a="links" aria-pressed="false" data-i18n="a_links">Links</button>
+          <button class="chip" data-a="mitte" aria-pressed="true" data-i18n="a_mitte">Mittig</button>
+          <button class="chip" data-a="rechts" aria-pressed="false" data-i18n="a_rechts">Rechts</button>
+        </div>
+        <span class="gruppenlabel" style="margin-top:10px" data-i18n="grp_abstand">Zeilenabstand</span>
+        <div class="chips" id="ftabstand">
+          <button class="chip" data-z="eng" aria-pressed="false" data-i18n="z_eng">Eng</button>
+          <button class="chip" data-z="normal" aria-pressed="true" data-i18n="z_normal">Normal</button>
+          <button class="chip" data-z="weit" aria-pressed="false" data-i18n="z_weit">Weit</button>
         </div>
       </div>
 
@@ -491,14 +504,14 @@
         </div>
       </details>
 
-      <div class="feld">
+      <div class="feld" id="v-stil-bereich">
         <span class="gruppenlabel" data-i18n="grp_schrift">Schriftstil</span>
         <div class="chips" id="stile"></div>
         <input class="vh" type="file" id="fontdatei" accept=".ttf,.otf,.woff,.woff2">
         <p class="hinweis" data-i18n="hinweis_font">„Eigene" lädt eine Schriftdatei von deinem Gerät. Bitte nur Schriften, die du verwenden darfst.</p>
       </div>
 
-      <div class="feld">
+      <div class="feld" id="v-farb-bereich">
         <div class="gruppenkopf">
           <span class="gruppenlabel" data-i18n="grp_textfarbe">Textfarbe</span>
           <span class="zaehler" id="anz-farben"></span>
@@ -524,10 +537,23 @@
         <label for="rfreitext" data-i18n="lbl_freitext">Dein Text – jede Zeile kommt so auf die Tasse</label>
         <textarea id="rfreitext" rows="4" maxlength="240"
           style="width:100%;padding:9px 11px;border:1px solid var(--linie);border-radius:6px;background:var(--karte);font-size:16px;font-family:inherit;color:var(--ink)"></textarea>
-        <div class="chips" id="rtgroesse" style="margin-top:8px">
+        <span class="gruppenlabel" style="margin-top:10px" data-i18n="grp_groesse">Größe</span>
+        <div class="chips" id="rtgroesse">
           <button class="chip" data-g="s" aria-pressed="false" data-i18n="g_klein">Klein</button>
           <button class="chip" data-g="m" aria-pressed="true" data-i18n="g_mittel">Mittel</button>
           <button class="chip" data-g="l" aria-pressed="false" data-i18n="g_gross">Groß</button>
+        </div>
+        <span class="gruppenlabel" style="margin-top:10px" data-i18n="grp_ausricht">Ausrichtung</span>
+        <div class="chips" id="rtausricht">
+          <button class="chip" data-a="links" aria-pressed="false" data-i18n="a_links">Links</button>
+          <button class="chip" data-a="mitte" aria-pressed="true" data-i18n="a_mitte">Mittig</button>
+          <button class="chip" data-a="rechts" aria-pressed="false" data-i18n="a_rechts">Rechts</button>
+        </div>
+        <span class="gruppenlabel" style="margin-top:10px" data-i18n="grp_abstand">Zeilenabstand</span>
+        <div class="chips" id="rtabstand">
+          <button class="chip" data-z="eng" aria-pressed="false" data-i18n="z_eng">Eng</button>
+          <button class="chip" data-z="normal" aria-pressed="true" data-i18n="z_normal">Normal</button>
+          <button class="chip" data-z="weit" aria-pressed="false" data-i18n="z_weit">Weit</button>
         </div>
       </div>
 
@@ -694,6 +720,9 @@
       grp_design:'Design', grp_foto:'Mit Foto',
       lbl_freitext:'Dein Text – jede Zeile kommt so auf die Tasse',
       g_klein:'Klein', g_mittel:'Mittel', g_gross:'Groß',
+      grp_groesse:'Größe', grp_ausricht:'Ausrichtung', grp_abstand:'Zeilenabstand',
+      a_links:'Links', a_mitte:'Mittig', a_rechts:'Rechts',
+      z_eng:'Eng', z_normal:'Normal', z_weit:'Weit',
       texte_aendern:'Texte ändern',
       lbl_kicker:'Zeile oben', lbl_hero:'Große Zeile', lbl_sub:'Untertitel', lbl_nm:'Namenszeile',
       pol_kicker:'Zeile oben', pol_hero:'Bildunterschrift', pol_sub:'Kleine Zeile unten',
@@ -763,6 +792,9 @@
       grp_design:'Design', grp_foto:'With photo',
       lbl_freitext:'Your text – each line goes on the mug just like this',
       g_klein:'Small', g_mittel:'Medium', g_gross:'Large',
+      grp_groesse:'Size', grp_ausricht:'Alignment', grp_abstand:'Line spacing',
+      a_links:'Left', a_mitte:'Centred', a_rechts:'Right',
+      z_eng:'Tight', z_normal:'Normal', z_weit:'Loose',
       texte_aendern:'Edit the text',
       lbl_kicker:'Top line', lbl_hero:'Big line', lbl_sub:'Subtitle', lbl_nm:'Name line',
       pol_kicker:'Top line', pol_hero:'Caption', pol_sub:'Small line below',
@@ -854,7 +886,9 @@
     stil:'klassisch',
     ansicht:'vorne',
     schritt:'s1',
-    ftGroesse:'m',
+    vorneModus:'design',
+    ftGroesse:'m', ftAusricht:'mitte', ftAbstand:'normal',
+    rtGroesse:'m', rtAusricht:'mitte', rtAbstand:'normal',
     rueck:{modus:'design', layout:'fotokreis', stil:'klassisch', dirty:false},
     freitextDirty:false,
     eigeneGeladen:false,
@@ -1264,17 +1298,31 @@
         return;
       }
       const fak = s.ftG==='s' ? 0.72 : s.ftG==='l' ? 1.22 : 1;
-      const gap = H*0.045;
+      /* Der Faktor muss auf die Breite mitwirken. Vorher hing er allein an der
+         Starthoehe, und passend() verkleinert nur, bis die Breite passt: sobald
+         die Breite das Limit war, kam fuer Klein, Mittel und Gross dieselbe
+         Groesse heraus, die Knoepfe taten also nichts. Nach oben gedeckelt,
+         damit "Gross" nicht ueber den Druckrand laeuft. */
+      const maxB = zw * Math.min(0.94, 0.88*fak);
+      const zfak = s.ftZ==='eng' ? 0.45 : s.ftZ==='weit' ? 1.9 : 1;
+      const gap = H*0.045*zfak;
       const lineH = Math.min(H*0.30, (H*0.88 - gap*(roh.length-1))/roh.length);
       const gesamt = roh.length*lineH + (roh.length-1)*gap;
       let y = (H-gesamt)/2;
+
+      /* Ausrichtung: der Rand bleibt derselbe wie die Textbreite oben */
+      const rand = (zw-maxB)/2;
+      const ax = s.ftA==='links' ? rand : s.ftA==='rechts' ? zw-rand : cx;
+      ctx.textAlign = s.ftA==='links' ? 'left' : s.ftA==='rechts' ? 'right' : 'center';
+
       roh.forEach(zeile=>{
         const f=g=>fDisplay(700,g);
-        const g=passend(ctx, zeile, f, zw*0.88, Math.max(16, Math.round(lineH*0.85*fak)));
+        const g=passend(ctx, zeile, f, maxB, Math.max(16, Math.round(lineH*0.85*fak)));
         ctx.font=f(g);
-        ctx.fillText(zeile, cx, y+lineH/2);
+        ctx.fillText(zeile, ax, y+lineH/2);
         y += lineH+gap;
       });
+      ctx.textAlign='center';
     },
 
     fotokreis(ctx, zw, H, d, s){
@@ -1481,6 +1529,7 @@
       sub:    ersetze($('sub').value, d),
       bild:   Z.bild, t: Z.t1,
       frei:   $('freitext').value, ftG: Z.ftGroesse,
+      ftA:    Z.ftAusricht, ftZ: Z.ftAbstand,
       nm:     ersetze($('nmzeile').value, d)
     };
 
@@ -1489,7 +1538,7 @@
     ctx.translate(textX,0);
     ctx.fillStyle=Z.tinte; ctx.strokeStyle=Z.tinte;
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    KOMP[Z.layout](ctx, zwT, H, d, sV);
+    if (Z.vorneModus!=='keine') KOMP[Z.layout](ctx, zwT, H, d, sV);
     ctx.restore();
 
     /* --- Rückseite --- */
@@ -1506,6 +1555,7 @@
         sub:    ersetze($('r-sub').value, d),
         bild:   Z.bild2, t: Z.t2,
         frei:   $('rfreitext').value, ftG: Z.rtGroesse,
+        ftA:    Z.rtAusricht, ftZ: Z.rtAbstand,
         nm:     ersetze($('r-nmzeile').value, d)
       };
       KOMP[Z.rueck.layout](ctx, zwE, H, d, sR);
@@ -1564,7 +1614,7 @@
   }
   function platzhalterAktiv(){
     const nr=offeneSeiteNr();
-    if (nr===1) return (PRESETS[Z.layout]||{}).kat==='foto' && !Z.bild;
+    if (nr===1) return Z.vorneModus==='design' && (PRESETS[Z.layout]||{}).kat==='foto' && !Z.bild;
     return Z.rueck.modus==='design' && (PRESETS[Z.rueck.layout]||{}).kat==='foto' && !Z.bild2;
   }
   /* ---------- Wegweiser von der Vorschau zu den Feldern ----------
@@ -2225,9 +2275,13 @@
     $('lbl-kicker').textContent=l[0];
     $('lbl-hero').textContent=l[1];
     $('lbl-sub').textContent=l[2];
-    const frei = Z.layout==='freitext';
+    /* Ohne Design gibt es vorne nichts einzustellen */
+    const leer = Z.vorneModus==='keine';
+    const frei = !leer && Z.layout==='freitext';
     $('freitext-bereich').style.display = frei ? '' : 'none';
-    $('texte-details').style.display = frei ? 'none' : '';
+    $('texte-details').style.display = (!leer && !frei) ? '' : 'none';
+    $('v-stil-bereich').style.display = leer ? 'none' : '';
+    $('v-farb-bereich').style.display = leer ? 'none' : '';
     if (frei && !Z.freitextDirty && !$('freitext').value) $('freitext').value=T('frei_vorne');
 
     const rl = Z.rueck.layout==='polaroid' ? LB.polaroid : LB.std;
@@ -2243,9 +2297,17 @@
       .forEach(c=>c.setAttribute('aria-pressed','false'));
     const chip=document.querySelector('#layouts [data-layout="'+id+'"], #fotolayouts [data-layout="'+id+'"]');
     if(chip) chip.setAttribute('aria-pressed','true');
-    Z.layout=id;
-    dirty.kicker=dirty.hero=dirty.sub=dirty.nm=false;
-    fuellePreset(); beschrifte(); panelUpdate(); aktualisiere();
+    /* "Kein Design" laesst die Vorderseite leer. Z.layout behaelt die letzte
+       Wahl, damit ein Zurueckschalten die Texte nicht verliert. */
+    if (id==='keine'){
+      Z.vorneModus='keine';
+    } else {
+      Z.vorneModus='design';
+      Z.layout=id;
+      dirty.kicker=dirty.hero=dirty.sub=dirty.nm=false;
+      fuellePreset();
+    }
+    beschrifte(); panelUpdate(); aktualisiere();
   }
   function waehleRLayout(id){
     document.querySelectorAll('#r-layouts .chip, #r-fotolayouts .chip')
@@ -2272,6 +2334,7 @@
       const b=document.createElement('button');
       b.className='chip'; b.textContent=p.titel; b.dataset.layout=id;
       b.setAttribute('aria-pressed', id===Z.layout ? 'true':'false');
+      b.setAttribute('aria-pressed', (Z.vorneModus==='design' && id===Z.layout) ? 'true':'false');
       (p.kat==='text' ? $('layouts') : $('fotolayouts')).appendChild(b);
 
       const rb=document.createElement('button');
@@ -2283,6 +2346,12 @@
     nb.className='chip'; nb.textContent=T('chip_nichts'); nb.dataset.rlayout='keine';
     nb.setAttribute('aria-pressed', Z.rueck.modus==='keine' ? 'true':'false');
     $('r-layouts').insertBefore(nb, $('r-layouts').firstChild);
+
+    /* dasselbe fuer die Vorderseite */
+    const vb=document.createElement('button');
+    vb.className='chip'; vb.textContent=T('chip_nichts'); vb.dataset.layout='keine';
+    vb.setAttribute('aria-pressed', Z.vorneModus==='keine' ? 'true':'false');
+    $('layouts').insertBefore(vb, $('layouts').firstChild);
   }
   baueLayoutChips();
   [$('layouts'),$('fotolayouts')].forEach(el=>{
@@ -2394,13 +2463,22 @@
     Z.rueck.stil=b.dataset.rs;
     aktualisiere();
   });
-  $('rtgroesse').addEventListener('click', e=>{
-    const b=e.target.closest('[data-g]'); if(!b) return;
-    document.querySelectorAll('#rtgroesse .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
-    b.setAttribute('aria-pressed','true');
-    Z.rtGroesse=b.dataset.g;
-    aktualisiere();
-  });
+  /* Klein/Mittel/Gross, Ausrichtung und Zeilenabstand laufen alle nach dem
+     gleichen Muster: gedrueckten Chip umsetzen, Wert merken, neu zeichnen. */
+  function chipGruppe(gruppenId, attr, setze){
+    $(gruppenId).addEventListener('click', e=>{
+      const b=e.target.closest('['+attr+']'); if(!b) return;
+      document.querySelectorAll('#'+gruppenId+' .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true');
+      setze(b.getAttribute(attr));
+      aktualisiere();
+    });
+  }
+  chipGruppe('rtgroesse',  'data-g', v=>Z.rtGroesse=v);
+  chipGruppe('rtausricht', 'data-a', v=>Z.rtAusricht=v);
+  chipGruppe('rtabstand',  'data-z', v=>Z.rtAbstand=v);
+  chipGruppe('ftausricht', 'data-a', v=>Z.ftAusricht=v);
+  chipGruppe('ftabstand',  'data-z', v=>Z.ftAbstand=v);
 
   baueFarben($('farben'), FARBEN, Z.tinte, f=>Z.tinte=f);
   baueFarben($('elemfarben'), ELEMFARBEN, Z.elemFarbe, f=>Z.elemFarbe=f);
@@ -2516,7 +2594,7 @@
 
   /* ---------- Foto-Karten nach Rolle ---------- */
   function fotoRollen(){
-    const vorne  = (PRESETS[Z.layout]||{}).kat==='foto';
+    const vorne  = Z.vorneModus==='design' && (PRESETS[Z.layout]||{}).kat==='foto';
     const hinten = Z.rueck.modus==='design' && (PRESETS[Z.rueck.layout]||{}).kat==='foto';
     const r=[];
     /* Es wird immer nur das Foto der Seite gezeigt, an der gerade gearbeitet wird. */
@@ -2652,20 +2730,16 @@
     aktualisiere();
   });
   $('freitext').addEventListener('input', ()=>{ Z.freitextDirty=true; aktualisiere(); });
-  $('ftgroesse').addEventListener('click', e=>{
-    const b=e.target.closest('[data-g]'); if(!b) return;
-    document.querySelectorAll('#ftgroesse .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
-    b.setAttribute('aria-pressed','true');
-    Z.ftGroesse=b.dataset.g;
-    aktualisiere();
-  });
+  chipGruppe('ftgroesse', 'data-g', v=>Z.ftGroesse=v);
 
   /* ================= Sprachumschaltung ================= */
   function setzeSprache(neu, erstesMal){
     if (!TEXTE[neu]) neu='de';
     const alt = SPRACHE;
     SPRACHE = neu;
-    try{ localStorage.setItem('mbh-sprache', neu); }catch(e){}
+    /* Nur die selbst angeklickte Wahl merken, nicht die beim Laden gesetzte.
+       Sonst haengen Besucher mit fremdsprachigem Browser dauerhaft fest. */
+    if (!erstesMal){ try{ localStorage.setItem('mbh-sprache-wahl', neu); }catch(e){} }
     document.documentElement.lang = neu;
     document.title = T('seite_titel');
 
@@ -2712,10 +2786,10 @@
     if (b.dataset.lang!==SPRACHE) setzeSprache(b.dataset.lang);
   });
 
-  /* Gemerkte Wahl schlägt die Browsersprache. Ohne beides bleibt es Deutsch. */
+  /* Reihenfolge: selbst angeklickte Wahl, sonst Browsersprache, sonst Deutsch. */
   let startSprache='de';
   try{
-    const gemerkt=localStorage.getItem('mbh-sprache');
+    const gemerkt=localStorage.getItem('mbh-sprache-wahl');
     if (gemerkt && TEXTE[gemerkt]) startSprache=gemerkt;
     else if (!(navigator.language||'de').toLowerCase().startsWith('de')) startSprache='en';
   }catch(e){}

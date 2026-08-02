@@ -286,6 +286,39 @@
   .chip:nth-child(3n+1){background:var(--lav)}
   .chip:nth-child(5n){background:var(--blush)}
 
+  /* ---------- Diashow ----------
+     Feste 3:4-Buehne, damit beim Wechsel nichts springt. Die Fotos sind auf
+     dasselbe Verhaeltnis zugeschnitten, object-fit faengt den Rest ab. */
+  .galerie{display:flex;flex-direction:column;align-items:center;gap:18px}
+  .buehne{
+    position:relative;width:min(360px,86vw);aspect-ratio:3/4;
+    border:2px solid var(--ink);border-radius:var(--rand);
+    background:var(--karte);box-shadow:0 4px 0 var(--lav);
+    overflow:hidden;
+  }
+  .buehne img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    opacity:0;transition:opacity .6s ease;
+  }
+  .buehne img.an{opacity:1}
+  @media (prefers-reduced-motion:reduce){ .buehne img{transition:none} }
+
+  .gal-steuer{display:flex;align-items:center;gap:16px}
+  .gal-pfeil{
+    width:42px;height:42px;border-radius:50%;border:2px solid var(--ink);
+    background:var(--karte);color:var(--ink);cursor:pointer;
+    display:grid;place-items:center;font-family:var(--text);font-size:19px;line-height:1;
+    transition:background .18s ease, color .18s ease;
+  }
+  .gal-pfeil:hover{background:var(--ink);color:var(--paper)}
+  .gal-punkte{display:flex;gap:9px}
+  .gal-punkt{
+    width:12px;height:12px;padding:0;border-radius:50%;
+    border:2px solid var(--ink);background:transparent;cursor:pointer;
+    transition:background .18s ease;
+  }
+  .gal-punkt[aria-current="true"]{background:var(--ink)}
+
   /* Schluss-Aufruf */
   .schluss{
     text-align:center;background:var(--ink);color:var(--paper);
@@ -499,6 +532,33 @@
     </div>
   </section>
 
+  <!-- ================= DIASHOW ================= -->
+  <section class="block" id="galerie">
+    <div class="wrap">
+      <div class="block-kopf">
+        <h2 data-i18n="gal_titel">So sehen sie aus</h2>
+        <p data-i18n="gal_text">Fertig gedruckte Tassen, fotografiert bei mir zu Hause.</p>
+      </div>
+      <div class="galerie">
+        <div class="buehne" id="buehne">
+          <img class="an" src="assets/galerie/1-fototasse-hund.jpg" width="800" height="1067"
+               data-i18n-alt="gal1_alt" alt="Weiße Tasse mit dem Foto eines Corgis und dem Namen Anna darunter">
+          <img src="assets/galerie/2-tasse-holzbank.jpg" width="800" height="1067" loading="lazy"
+               data-i18n-alt="gal2_alt" alt="Weiße Tasse mit japanischem Holzschnitt, auf einer Holzbank im Tageslicht">
+          <img src="assets/galerie/3-tasse-holztisch.jpg" width="800" height="1067" loading="lazy"
+               data-i18n-alt="gal3_alt" alt="Weiße Tasse mit japanischem Holzschnitt auf einem Holztisch">
+        </div>
+        <div class="gal-steuer">
+          <button class="gal-pfeil" id="gal-zurueck" type="button"
+                  data-i18n-al="gal_zurueck" aria-label="Vorheriges Bild">←</button>
+          <div class="gal-punkte" id="gal-punkte"></div>
+          <button class="gal-pfeil" id="gal-vor" type="button"
+                  data-i18n-al="gal_vor" aria-label="Nächstes Bild">→</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer class="fuss">
@@ -563,6 +623,14 @@
       schluss_text:'Der Designer läuft komplett in deinem Browser. Nichts wird hochgeladen, nichts gespeichert. Du siehst sofort, wie deine Tasse aussieht.',
       schluss_cta:'Jetzt Tasse gestalten →',
 
+      gal_titel:'So sehen sie aus',
+      gal_text:'Fertig gedruckte Tassen, fotografiert bei mir zu Hause.',
+      gal_zurueck:'Vorheriges Bild',
+      gal_vor:'Nächstes Bild',
+      gal1_alt:'Weiße Tasse mit dem Foto eines Corgis und dem Namen Anna darunter',
+      gal2_alt:'Weiße Tasse mit japanischem Holzschnitt, auf einer Holzbank im Tageslicht',
+      gal3_alt:'Weiße Tasse mit japanischem Holzschnitt auf einem Holztisch',
+
       fuss_impressum:'Impressum',
       fuss_datenschutz:'Datenschutz',
       fuss_designer:'Designer'
@@ -610,6 +678,14 @@
       schluss_text:'The designer runs entirely in your browser. Nothing is uploaded, nothing is stored. You see straight away how your mug will look.',
       schluss_cta:'Design your mug now →',
 
+      gal_titel:'How they turn out',
+      gal_text:'Finished mugs, photographed here at home.',
+      gal_zurueck:'Previous image',
+      gal_vor:'Next image',
+      gal1_alt:'White mug with a photo of a corgi and the name Anna beneath it',
+      gal2_alt:'White mug with a Japanese woodblock print, on a wooden bench in daylight',
+      gal3_alt:'White mug with a Japanese woodblock print on a wooden table',
+
       fuss_impressum:'Legal notice',
       fuss_datenschutz:'Privacy',
       fuss_designer:'Designer'
@@ -620,11 +696,15 @@
   const T = k => (TEXTE[SPRACHE][k] ?? TEXTE.de[k] ?? k);
 
   /* ================= Sprachumschaltung ================= */
-  function setzeSprache(neu){
+  function setzeSprache(neu, gewaehlt){
     if (!TEXTE[neu]) neu = 'de';
     SPRACHE = neu;
-    /* gleicher Schlüssel wie im Designer – die Wahl trägt sich mit */
-    try{ localStorage.setItem('mbh-sprache', neu); }catch(e){}
+    /* Nur eine selbst angeklickte Wahl wird gemerkt. Die alte Fassung schrieb
+       auch die automatisch erkannte Sprache mit, dadurch blieben Besucher mit
+       fremdsprachigem Browser dauerhaft auf Englisch haengen. Eigener
+       Schluessel, damit die Altwerte nicht mehr greifen.
+       Gleicher Schluessel wie im Designer, die Wahl traegt sich also mit. */
+    if (gewaehlt){ try{ localStorage.setItem('mbh-sprache-wahl', neu); }catch(e){} }
 
     document.documentElement.lang = neu;
     document.title = T('seite_titel');
@@ -641,6 +721,9 @@
     document.querySelectorAll('[data-i18n-al]').forEach(el=>{
       el.setAttribute('aria-label', T(el.dataset.i18nAl));
     });
+    document.querySelectorAll('[data-i18n-alt]').forEach(el=>{
+      el.alt = T(el.dataset.i18nAlt);
+    });
 
     document.querySelectorAll('#sprachwahl .flagge').forEach(b=>{
       b.setAttribute('aria-pressed', b.dataset.lang === neu ? 'true' : 'false');
@@ -649,18 +732,67 @@
 
   document.getElementById('sprachwahl').addEventListener('click', e=>{
     const b = e.target.closest('[data-lang]'); if (!b) return;
-    if (b.dataset.lang !== SPRACHE) setzeSprache(b.dataset.lang);
+    if (b.dataset.lang !== SPRACHE) setzeSprache(b.dataset.lang, true);
   });
 
-  /* Gemerkte Wahl schlägt die Browsersprache. Ohne beides bleibt es Deutsch. */
+  /* Reihenfolge: selbst angeklickte Wahl, sonst Browsersprache, sonst Deutsch. */
   let startSprache = 'de';
   try{
-    const gemerkt = localStorage.getItem('mbh-sprache');
+    const gemerkt = localStorage.getItem('mbh-sprache-wahl');
     if (gemerkt && TEXTE[gemerkt]) startSprache = gemerkt;
     else if (!(navigator.language || 'de').toLowerCase().startsWith('de')) startSprache = 'en';
   }catch(e){}
 
   setzeSprache(startSprache);
+
+  /* ---------- Diashow ----------
+     Die Punkte tragen als Namen nur ihre Nummer, die braucht keine Uebersetzung. */
+  (function diashow(){
+    const buehne = document.getElementById('buehne');
+    if (!buehne) return;
+    const bilder = [...buehne.querySelectorAll('img')];
+    const punkte = document.getElementById('gal-punkte');
+    if (bilder.length < 2) return;
+
+    const ruhig = matchMedia('(prefers-reduced-motion:reduce)');
+    let i = 0, uhr = null;
+
+    bilder.forEach((_, n)=>{
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'gal-punkt';
+      b.setAttribute('aria-label', String(n+1));
+      b.setAttribute('aria-current', n===0 ? 'true' : 'false');
+      b.addEventListener('click', ()=>{ zeige(n); starte(); });
+      punkte.appendChild(b);
+    });
+    const knoepfe = [...punkte.children];
+
+    function zeige(n){
+      i = (n + bilder.length) % bilder.length;
+      bilder.forEach((im,k)=> im.classList.toggle('an', k===i));
+      knoepfe.forEach((b,k)=> b.setAttribute('aria-current', k===i ? 'true':'false'));
+    }
+    function stoppe(){ if (uhr){ clearInterval(uhr); uhr=null; } }
+    function starte(){
+      stoppe();
+      /* Kein Selbstlauf, wenn der Besucher Bewegung abbestellt hat */
+      if (ruhig.matches) return;
+      uhr = setInterval(()=>zeige(i+1), 5000);
+    }
+
+    document.getElementById('gal-vor').addEventListener('click', ()=>{ zeige(i+1); starte(); });
+    document.getElementById('gal-zurueck').addEventListener('click', ()=>{ zeige(i-1); starte(); });
+    /* Beim Betrachten und beim Tastaturfokus nicht weiterspringen */
+    buehne.addEventListener('pointerenter', stoppe);
+    buehne.addEventListener('pointerleave', starte);
+    punkte.addEventListener('focusin', stoppe);
+    punkte.addEventListener('focusout', starte);
+    /* Im Hintergrund laufen zu lassen bringt niemandem etwas */
+    document.addEventListener('visibilitychange', ()=> document.hidden ? stoppe() : starte());
+
+    starte();
+  })();
 })();
 </script>
 
