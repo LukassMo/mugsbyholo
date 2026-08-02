@@ -189,7 +189,9 @@
   }
   h1{
     font-family:var(--hand);font-weight:700;
-    font-size:clamp(44px,7.2vw,78px);line-height:1.02;letter-spacing:-.01em;
+    /* Caveat bringt viel Luft mit (Ascender 33 + Descender 10 auf 34px Schrift),
+       darum sitzt die zweite Zeile schon bei 1.0 optisch zu weit weg. */
+    font-size:clamp(44px,7.2vw,78px);line-height:.86;letter-spacing:-.01em;
     margin-bottom:20px;
   }
   h1 .betont{position:relative;white-space:nowrap}
@@ -246,6 +248,12 @@
     width:54px;height:54px;display:grid;place-items:center;border-radius:50%;
     background:var(--lav);margin-bottom:14px;
   }
+  /* place-items zentriert die Zeilenbox, nicht die Ziffer. Caveat sitzt darin
+     2px zu tief, und weil die Schrift schraeg laeuft, ragt die Tinte ueber die
+     Vorschubbreite hinaus nach rechts. Beides gemessen und hier ausgeglichen. */
+  .nummer span{display:block;transform:translate(var(--x,-.113em),-.059em)}
+  .schritt:nth-child(1) .nummer{--x:-.128em}
+  .schritt:nth-child(2) .nummer{--x:-.099em}
   .schritt:nth-child(2) .nummer{background:var(--mint)}
   .schritt:nth-child(3) .nummer{background:var(--blush)}
   .schritt h3{font-family:var(--hand);font-size:29px;font-weight:700;margin-bottom:6px}
@@ -266,9 +274,13 @@
 
   /* Anlässe */
   .chips{display:flex;flex-wrap:wrap;gap:11px;justify-content:center}
+  /* Das sind Stichworte, keine Schalter. Mit Ink-Rand und weisser Fuellung
+     sahen sie aus wie der Knopf im Held und luden zum Klicken ein. Ohne Rand,
+     ohne Schatten und in Pastell lesen sie sich als Etiketten. */
   .chip{
-    background:var(--karte);border:2px solid var(--ink);border-radius:999px;
-    padding:9px 20px;font-size:18px;
+    background:var(--lav);border:0;border-radius:999px;
+    padding:7px 16px;font-size:17px;color:var(--ink);
+    cursor:default;user-select:none;
   }
   .chip:nth-child(3n){background:var(--mint)}
   .chip:nth-child(3n+1){background:var(--lav)}
@@ -355,8 +367,8 @@
         </p>
         <div class="held-cta rein d4">
           <a class="knopf" href="designer/" data-i18n="held_cta">Tasse gestalten →</a>
-          <!-- ETSY-LINK: hier die echte Shop-Adresse eintragen -->
-          <a class="knopf zweit" id="etsy-link" href="https://www.etsy.com/de/shop/MugsByHolo" data-i18n="held_shop">Zum Shop</a>
+          <!-- ETSY-LINK: fuehrt direkt auf das Listing, nicht auf die Shop-Uebersicht -->
+          <a class="knopf zweit" id="etsy-link" href="https://www.etsy.com/de/listing/4548291128/personalisierte-geburtstagstasse-mit" data-i18n="held_shop">Zum Shop</a>
         </div>
         <p class="cta-notiz rein d5" data-i18n="held_notiz">Kauf und Bezahlung laufen über meinen Etsy-Shop</p>
       </div>
@@ -401,17 +413,17 @@
       </div>
       <div class="schritte">
         <div class="schritt">
-          <div class="nummer" aria-hidden="true">1</div>
+          <div class="nummer" aria-hidden="true"><span>1</span></div>
           <h3 data-i18n="sog1_titel">Gestalten</h3>
           <p data-i18n="sog1_text">Trag Name, Jahrgang und deinen Text im Designer ein, wähl ein Layout und speichere dein Bild.</p>
         </div>
         <div class="schritt">
-          <div class="nummer" aria-hidden="true">2</div>
+          <div class="nummer" aria-hidden="true"><span>2</span></div>
           <h3 data-i18n="sog2_titel">Bestellen</h3>
           <p data-i18n="sog2_text">Bestell deine Tasse in meinem Etsy-Shop. Dort läuft die ganze Kaufabwicklung.</p>
         </div>
         <div class="schritt">
-          <div class="nummer" aria-hidden="true">3</div>
+          <div class="nummer" aria-hidden="true"><span>3</span></div>
           <h3 data-i18n="sog3_titel">Zuschicken</h3>
           <p data-i18n="sog3_text">Schick mir dein Bild zur Bestellung. Ich drucke deine Tasse und verschicke sie versichert per DHL.</p>
         </div>
