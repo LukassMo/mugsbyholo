@@ -286,38 +286,51 @@
   .chip:nth-child(3n+1){background:var(--lav)}
   .chip:nth-child(5n){background:var(--blush)}
 
-  /* ---------- Diashow ----------
-     Feste 3:4-Buehne, damit beim Wechsel nichts springt. Die Fotos sind auf
-     dasselbe Verhaeltnis zugeschnitten, object-fit faengt den Rest ab. */
-  .galerie{display:flex;flex-direction:column;align-items:center;gap:18px}
-  .buehne{
-    position:relative;width:min(360px,86vw);aspect-ratio:3/4;
+  /* ---------- Bilderstreifen ----------
+     Ruhige Reihe statt Karussell: bei wenigen Fotos steht alles nebeneinander
+     und nichts bewegt sich von selbst. Kommen mehr dazu, wird der Streifen
+     seitlich scrollbar und die Pfeile blenden sich von allein ein. Feste
+     3:4-Kacheln, damit die Zeile ruhig bleibt. */
+  .streifen-block{padding:4px 0 46px;position:relative;z-index:1}
+  .streifen-kopf{
+    text-align:center;font-size:16px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-weich);margin-bottom:18px;
+  }
+  .streifen{
+    display:flex;gap:16px;justify-content:center;
+    overflow-x:auto;scroll-snap-type:x proximity;
+    padding:6px 2px 12px;
+    scrollbar-width:thin;scrollbar-color:var(--linie) transparent;
+  }
+  /* Bei Ueberlauf faellt justify-content:center weg, sonst ist der Anfang
+     nicht mehr erreichbar. */
+  .streifen.laeuft{justify-content:flex-start}
+  .streifen figure{
+    flex:0 0 auto;width:clamp(186px,23vw,244px);scroll-snap-align:center;margin:0;
+  }
+  .streifen img{
+    /* height:auto ist Pflicht: die height-Attribute im Markup gelten als
+       CSS-Hoehe und wuerden aspect-ratio sonst aushebeln. */
+    display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;
     border:2px solid var(--ink);border-radius:var(--rand);
     background:var(--karte);box-shadow:0 4px 0 var(--lav);
-    overflow:hidden;
   }
-  .buehne img{
-    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    opacity:0;transition:opacity .6s ease;
+  .streifen figure:nth-child(2n) img{box-shadow:0 4px 0 var(--mint)}
+  .streifen figure:nth-child(3n) img{box-shadow:0 4px 0 var(--blush)}
+  .streifen figcaption{
+    text-align:center;font-size:15.5px;color:var(--ink-weich);margin-top:10px;
   }
-  .buehne img.an{opacity:1}
-  @media (prefers-reduced-motion:reduce){ .buehne img{transition:none} }
 
-  .gal-steuer{display:flex;align-items:center;gap:16px}
-  .gal-pfeil{
+  .str-steuer{display:flex;justify-content:center;gap:14px;margin-top:6px}
+  .str-steuer[hidden]{display:none}
+  .str-pfeil{
     width:42px;height:42px;border-radius:50%;border:2px solid var(--ink);
     background:var(--karte);color:var(--ink);cursor:pointer;
     display:grid;place-items:center;font-family:var(--text);font-size:19px;line-height:1;
-    transition:background .18s ease, color .18s ease;
+    transition:background .18s ease, color .18s ease, opacity .18s ease;
   }
-  .gal-pfeil:hover{background:var(--ink);color:var(--paper)}
-  .gal-punkte{display:flex;gap:9px}
-  .gal-punkt{
-    width:12px;height:12px;padding:0;border-radius:50%;
-    border:2px solid var(--ink);background:transparent;cursor:pointer;
-    transition:background .18s ease;
-  }
-  .gal-punkt[aria-current="true"]{background:var(--ink)}
+  .str-pfeil:hover:not(:disabled){background:var(--ink);color:var(--paper)}
+  .str-pfeil:disabled{opacity:.3;cursor:default}
 
   /* Schluss-Aufruf */
   .schluss{
@@ -400,8 +413,9 @@
         </p>
         <div class="held-cta rein d4">
           <a class="knopf" href="designer/" data-i18n="held_cta">Tasse gestalten →</a>
-          <!-- ETSY-LINK: fuehrt direkt auf das Listing, nicht auf die Shop-Uebersicht -->
-          <a class="knopf zweit" id="etsy-link" href="https://www.etsy.com/de/listing/4548291128/personalisierte-geburtstagstasse-mit" data-i18n="held_shop">Zum Shop</a>
+          <!-- ETSY-LINK: hier bewusst die Shop-Uebersicht, der Knopf heisst ja
+               "Zum Shop". Die Bestellknoepfe im Designer zeigen aufs Listing. -->
+          <a class="knopf zweit" id="etsy-link" href="https://www.etsy.com/de-en/shop/MugsByHolo" data-i18n="held_shop">Zum Shop</a>
         </div>
         <p class="cta-notiz rein d5" data-i18n="held_notiz">Kauf und Bezahlung laufen über meinen Etsy-Shop</p>
       </div>
@@ -434,6 +448,44 @@
         </svg>
       </div>
 
+    </div>
+  </section>
+
+  <!-- ================= BILDERSTREIFEN =================
+       Bewusst direkt hinter dem Helden: der zeigt nur die gezeichnete Tasse,
+       hier kommt zum ersten Mal echte Ware ins Bild. Vorder- und Rueckseite
+       im Wechsel, das zeigt nebenbei den beidseitigen Druck. -->
+  <section class="streifen-block">
+    <div class="wrap">
+      <p class="streifen-kopf" data-i18n="str_kopf">Echte Tassen aus meiner Werkstatt</p>
+      <div class="streifen" id="streifen">
+        <figure>
+          <img src="assets/galerie/1-fototasse-vorne.jpg" width="640" height="853"
+               data-i18n-alt="str1_alt" alt="Weiße Tasse mit dem Foto eines Corgis und dem Namen Anna darunter">
+          <figcaption data-i18n="str1_cap">Fototasse, vorne</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/galerie/2-fototasse-hinten.jpg" width="640" height="853" loading="lazy"
+               data-i18n-alt="str2_alt" alt="Rückseite derselben Tasse mit einem großen roten A und dem Namen Anna">
+          <figcaption data-i18n="str2_cap">Dieselbe Tasse, hinten</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/galerie/3-motivtasse-vorne.jpg" width="640" height="853" loading="lazy"
+               data-i18n-alt="str3_alt" alt="Weiße Tasse mit einem japanischen Holzschnitt: Berg Fuji hinter Kiefern">
+          <figcaption data-i18n="str3_cap">Motivtasse, vorne</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/galerie/4-motivtasse-hinten.jpg" width="640" height="853" loading="lazy"
+               data-i18n-alt="str4_alt" alt="Rückseite derselben Tasse mit dem Bildtitel Dusk at Tagonoura, Kawase Hasui, 1940">
+          <figcaption data-i18n="str4_cap">Dieselbe Tasse, hinten</figcaption>
+        </figure>
+      </div>
+      <div class="str-steuer" id="str-steuer" hidden>
+        <button class="str-pfeil" id="str-zurueck" type="button"
+                data-i18n-al="str_zurueck" aria-label="Weiter nach links">←</button>
+        <button class="str-pfeil" id="str-vor" type="button"
+                data-i18n-al="str_vor" aria-label="Weiter nach rechts">→</button>
+      </div>
     </div>
   </section>
 
@@ -532,33 +584,6 @@
     </div>
   </section>
 
-  <!-- ================= DIASHOW ================= -->
-  <section class="block" id="galerie">
-    <div class="wrap">
-      <div class="block-kopf">
-        <h2 data-i18n="gal_titel">So sehen sie aus</h2>
-        <p data-i18n="gal_text">Fertig gedruckte Tassen, fotografiert bei mir zu Hause.</p>
-      </div>
-      <div class="galerie">
-        <div class="buehne" id="buehne">
-          <img class="an" src="assets/galerie/1-fototasse-hund.jpg" width="800" height="1067"
-               data-i18n-alt="gal1_alt" alt="Weiße Tasse mit dem Foto eines Corgis und dem Namen Anna darunter">
-          <img src="assets/galerie/2-tasse-holzbank.jpg" width="800" height="1067" loading="lazy"
-               data-i18n-alt="gal2_alt" alt="Weiße Tasse mit japanischem Holzschnitt, auf einer Holzbank im Tageslicht">
-          <img src="assets/galerie/3-tasse-holztisch.jpg" width="800" height="1067" loading="lazy"
-               data-i18n-alt="gal3_alt" alt="Weiße Tasse mit japanischem Holzschnitt auf einem Holztisch">
-        </div>
-        <div class="gal-steuer">
-          <button class="gal-pfeil" id="gal-zurueck" type="button"
-                  data-i18n-al="gal_zurueck" aria-label="Vorheriges Bild">←</button>
-          <div class="gal-punkte" id="gal-punkte"></div>
-          <button class="gal-pfeil" id="gal-vor" type="button"
-                  data-i18n-al="gal_vor" aria-label="Nächstes Bild">→</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
 </main>
 
 <footer class="fuss">
@@ -623,13 +648,17 @@
       schluss_text:'Der Designer läuft komplett in deinem Browser. Nichts wird hochgeladen, nichts gespeichert. Du siehst sofort, wie deine Tasse aussieht.',
       schluss_cta:'Jetzt Tasse gestalten →',
 
-      gal_titel:'So sehen sie aus',
-      gal_text:'Fertig gedruckte Tassen, fotografiert bei mir zu Hause.',
-      gal_zurueck:'Vorheriges Bild',
-      gal_vor:'Nächstes Bild',
-      gal1_alt:'Weiße Tasse mit dem Foto eines Corgis und dem Namen Anna darunter',
-      gal2_alt:'Weiße Tasse mit japanischem Holzschnitt, auf einer Holzbank im Tageslicht',
-      gal3_alt:'Weiße Tasse mit japanischem Holzschnitt auf einem Holztisch',
+      str_kopf:'Echte Tassen aus meiner Werkstatt',
+      str_zurueck:'Weiter nach links',
+      str_vor:'Weiter nach rechts',
+      str1_cap:'Fototasse, vorne',
+      str2_cap:'Dieselbe Tasse, hinten',
+      str3_cap:'Motivtasse, vorne',
+      str4_cap:'Dieselbe Tasse, hinten',
+      str1_alt:'Weiße Tasse mit dem Foto eines Corgis und dem Namen Anna darunter',
+      str2_alt:'Rückseite derselben Tasse mit einem großen roten A und dem Namen Anna',
+      str3_alt:'Weiße Tasse mit einem japanischen Holzschnitt: Berg Fuji hinter Kiefern',
+      str4_alt:'Rückseite derselben Tasse mit dem Bildtitel Dusk at Tagonoura, Kawase Hasui, 1940',
 
       fuss_impressum:'Impressum',
       fuss_datenschutz:'Datenschutz',
@@ -678,13 +707,17 @@
       schluss_text:'The designer runs entirely in your browser. Nothing is uploaded, nothing is stored. You see straight away how your mug will look.',
       schluss_cta:'Design your mug now →',
 
-      gal_titel:'How they turn out',
-      gal_text:'Finished mugs, photographed here at home.',
-      gal_zurueck:'Previous image',
-      gal_vor:'Next image',
-      gal1_alt:'White mug with a photo of a corgi and the name Anna beneath it',
-      gal2_alt:'White mug with a Japanese woodblock print, on a wooden bench in daylight',
-      gal3_alt:'White mug with a Japanese woodblock print on a wooden table',
+      str_kopf:'Real mugs from my workshop',
+      str_zurueck:'Scroll left',
+      str_vor:'Scroll right',
+      str1_cap:'Photo mug, front',
+      str2_cap:'Same mug, back',
+      str3_cap:'Artwork mug, front',
+      str4_cap:'Same mug, back',
+      str1_alt:'White mug with a photo of a corgi and the name Anna beneath it',
+      str2_alt:'Back of the same mug with a large red A and the name Anna',
+      str3_alt:'White mug with a Japanese woodblock print: Mount Fuji behind pine trees',
+      str4_alt:'Back of the same mug with the print title Dusk at Tagonoura, Kawase Hasui, 1940',
 
       fuss_impressum:'Legal notice',
       fuss_datenschutz:'Privacy',
@@ -745,53 +778,40 @@
 
   setzeSprache(startSprache);
 
-  /* ---------- Diashow ----------
-     Die Punkte tragen als Namen nur ihre Nummer, die braucht keine Uebersetzung. */
-  (function diashow(){
-    const buehne = document.getElementById('buehne');
-    if (!buehne) return;
-    const bilder = [...buehne.querySelectorAll('img')];
-    const punkte = document.getElementById('gal-punkte');
-    if (bilder.length < 2) return;
+  /* ---------- Bilderstreifen ----------
+     Kein Selbstlauf. Die Pfeile sind nur da, wenn die Reihe breiter ist als
+     der Platz: mit der Maus laesst sich seitlich schlecht scrollen, mit
+     Wischgeste dagegen gut. Solange alles nebeneinander passt, waeren sie
+     nur Zierde. */
+  (function streifen(){
+    const s = document.getElementById('streifen');
+    const steuer = document.getElementById('str-steuer');
+    if (!s || !steuer) return;
+    const zurueck = document.getElementById('str-zurueck');
+    const vor = document.getElementById('str-vor');
 
-    const ruhig = matchMedia('(prefers-reduced-motion:reduce)');
-    let i = 0, uhr = null;
-
-    bilder.forEach((_, n)=>{
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'gal-punkt';
-      b.setAttribute('aria-label', String(n+1));
-      b.setAttribute('aria-current', n===0 ? 'true' : 'false');
-      b.addEventListener('click', ()=>{ zeige(n); starte(); });
-      punkte.appendChild(b);
-    });
-    const knoepfe = [...punkte.children];
-
-    function zeige(n){
-      i = (n + bilder.length) % bilder.length;
-      bilder.forEach((im,k)=> im.classList.toggle('an', k===i));
-      knoepfe.forEach((b,k)=> b.setAttribute('aria-current', k===i ? 'true':'false'));
+    function schrittweite(){
+      const k = s.querySelector('figure');
+      return k ? k.getBoundingClientRect().width + 16 : Math.round(s.clientWidth*0.8);
     }
-    function stoppe(){ if (uhr){ clearInterval(uhr); uhr=null; } }
-    function starte(){
-      stoppe();
-      /* Kein Selbstlauf, wenn der Besucher Bewegung abbestellt hat */
-      if (ruhig.matches) return;
-      uhr = setInterval(()=>zeige(i+1), 5000);
+    function pruefe(){
+      const rest = s.scrollWidth - s.clientWidth;
+      const laeuft = rest > 4;
+      s.classList.toggle('laeuft', laeuft);
+      steuer.hidden = !laeuft;
+      if (!laeuft) return;
+      zurueck.disabled = s.scrollLeft <= 2;
+      vor.disabled = s.scrollLeft >= rest - 2;
     }
 
-    document.getElementById('gal-vor').addEventListener('click', ()=>{ zeige(i+1); starte(); });
-    document.getElementById('gal-zurueck').addEventListener('click', ()=>{ zeige(i-1); starte(); });
-    /* Beim Betrachten und beim Tastaturfokus nicht weiterspringen */
-    buehne.addEventListener('pointerenter', stoppe);
-    buehne.addEventListener('pointerleave', starte);
-    punkte.addEventListener('focusin', stoppe);
-    punkte.addEventListener('focusout', starte);
-    /* Im Hintergrund laufen zu lassen bringt niemandem etwas */
-    document.addEventListener('visibilitychange', ()=> document.hidden ? stoppe() : starte());
-
-    starte();
+    zurueck.addEventListener('click', ()=> s.scrollBy({left:-schrittweite(), behavior:'smooth'}));
+    vor.addEventListener('click',     ()=> s.scrollBy({left: schrittweite(), behavior:'smooth'}));
+    s.addEventListener('scroll', pruefe, {passive:true});
+    addEventListener('resize', pruefe);
+    /* Die Kachelbreite haengt an der Schrift der Bildunterschrift */
+    document.fonts.ready.then(pruefe);
+    /* Nachgeladene Bilder aendern nichts an der Breite, geladene Schrift schon */
+    pruefe();
   })();
 })();
 </script>
